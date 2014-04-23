@@ -1,0 +1,18 @@
+kombu (2.1.0-1) unstable; urgency=low
+
+  This release adds support for two new transports.
+
+  django-kombu is now part of Kombu core.
+  If you have previously used django-kombu, then the entry in INSTALLED_APPS
+  must be changed from djkombu to kombu.transport.django:
+
+    INSTALLED_APPS = (..., "kombu.transport.django")
+
+  There is no need to recreate the tables, as the old tables will be
+  fully compatible with the new version.
+
+  kombu-sqlalchemy is now also part of Kombu core.
+  This change requires no code changes given that the sqlalchemy transport
+  alias is used.
+
+ -- Michael Fladischer <FladischerMichael@fladi.at>  Mon, 16 Jan 2012 13:55:28 +0100

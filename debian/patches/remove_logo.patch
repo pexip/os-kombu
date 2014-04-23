@@ -1,0 +1,27 @@
+Description: Remove github-hosted logo from documentation
+Author: Michael Fladischer <FladischerMichael@fladi.at>
+Last-Update: 2014-04-10
+Forwarded: not-needed
+
+--- a/docs/conf.py
++++ b/docs/conf.py
+@@ -69,7 +69,7 @@
+ html_theme = "celery"
+ html_theme_path = ["_theme"]
+ html_sidebars = {
+-    'index': ['sidebarintro.html', 'sourcelink.html', 'searchbox.html'],
+-    '**': ['sidebarlogo.html', 'localtoc.html', 'relations.html',
++    'index': ['sourcelink.html', 'searchbox.html'],
++    '**': ['localtoc.html', 'relations.html',
+            'sourcelink.html', 'searchbox.html'],
+ }
+--- a/docs/introduction.rst
++++ b/docs/introduction.rst
+@@ -321,7 +321,3 @@
+ 
+ This software is licensed under the `New BSD License`. See the `LICENSE`
+ file in the top distribution directory for the full license text.
+-
+-.. image:: https://d2weczhvl823v0.cloudfront.net/celery/kombu/trend.png
+-    :alt: Bitdeli badge
+-    :target: https://bitdeli.com/free

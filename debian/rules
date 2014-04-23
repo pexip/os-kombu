@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ --with python2,sphinxdoc
+
+override_dh_auto_build:
+	PYTHONPATH=. sphinx-build -b html -d docs/.build/.doctrees -N docs docs/.build/html
+	dh_auto_build
+
+override_dh_auto_test:
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+	set -e; \
+	for python in $(shell pyversions -r); do \
+	  $$python setup.py test ; \
+	done
+endif
+
+override_dh_compress:
+	dh_compress -X .js -X .html
+
+override_dh_clean:
+	rm -rf docs/.build
+	rm -rf kombu.egg-info/PKG-INFO
+	dh_clean

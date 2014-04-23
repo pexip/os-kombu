@@ -1,0 +1,82 @@
+Source: kombu
+Section: python
+Priority: optional
+Maintainer: Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
+Uploaders: Michael Fladischer <FladischerMichael@fladi.at>
+Build-Depends: debhelper (>= 8.1.0~),
+               python-all,
+               python-amqp (<< 2.0),
+               python-amqp (>= 1.4.5),
+               python-anyjson (>= 0.3.3),
+               python-beanstalkc,
+               python-boto,
+               python-couchdb (>= 0.8),
+               python-django,
+               python-librabbitmq,
+               python-mock,
+               python-msgpack,
+               python-nose,
+               python-pika,
+               python-pymongo (>= 2.6.2),
+               python-redis,
+               python-setuptools,
+               python-simplejson,
+               python-sphinx (>= 1.0.7+dfsg),
+               python-sqlalchemy,
+               python-unittest2,
+               python-yaml
+Build-Conflicts: python-cjson
+X-Python-Version: >= 2.6
+Standards-Version: 3.9.5
+Homepage: http://github.com/ask/kombu/
+Vcs-Svn: svn://anonscm.debian.org/python-modules/packages/kombu/trunk/
+Vcs-Browser: http://anonscm.debian.org/viewvc/python-modules/packages/kombu/trunk/
+
+Package: python-kombu
+Architecture: all
+Depends: python-librabbitmq | python-amqp (>= 1.4.5),
+         python-anyjson (>= 0.3.3),
+         ${misc:Depends},
+         ${python:Depends}
+Recommends: python-yaml
+Breaks: python-cjson (<= 1.0.5-4+b1)
+Suggests: python-boto,
+          python-beanstalkc,
+          python-couchdb (>= 0.8),
+          python-django,
+          python-kombu-doc,
+          python-pika,
+          python-pymongo (>= 2.6.2),
+          python-redis,
+          python-sqlalchemy
+Description: AMQP Messaging Framework for Python
+ The aim of Kombu is to make messaging in Python as easy as possible by
+ providing an idiomatic high-level interface for the AMQP protocol. It is meant
+ to replace the carrot library by providing a compatibility layer.
+ .
+ Features:
+  * Allows application authors to support several message server solutions by
+    using pluggable transports.
+  * Supports automatic encoding, serialization and compression of message
+    payloads.
+  * The ability to ensure that an operation is performed by gracefully handling
+    connection and channel errors.
+
+Package: python-kombu-doc
+Section: doc
+Architecture: all
+Depends: ${misc:Depends}, ${sphinxdoc:Depends}
+Description: AMQP Messaging Framework for Python (Documentation)
+ The aim of Kombu is to make messaging in Python as easy as possible by
+ providing an idiomatic high-level interface for the AMQP protocol. It is meant
+ to replace the carrot library by providing a compatibility layer.
+ .
+ Features:
+  * Allows application authors to support several message server solutions by
+    using pluggable transports.
+  * Supports automatic encoding, serialization and compression of message
+    payloads.
+  * The ability to ensure that an operation is performed by gracefully handling
+    connection and channel errors.
+ .
+ This package contains the documentation.

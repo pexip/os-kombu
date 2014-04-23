@@ -1,0 +1,147 @@
+kombu (3.0.15-1) unstable; urgency=low
+
+  * New upstream release.
+  * Update Dependencies on python-amqp to (>= 1.4.5).
+  * Add python-redis to Build-Depends to allow tests for the redis transport
+    to run and add it to Suggests to for anyone who uses it as a transport.
+  * Add python-msgpack to Build-Depends in order to enable further tests.
+
+ -- Michael Fladischer <FladischerMichael@fladi.at>  Wed, 23 Apr 2014 14:13:53 +0200
+
+kombu (3.0.14-1) unstable; urgency=low
+
+  * New upstream release.
+  * Make Depends and Build-Depends on python-pymongo versioned (>=
+    2.6.2), thanks to Benjamin Drung.
+  * Check PGP signature on upstream tarball:
+    + Add signature URL to debian/watch.
+    + Include upstream public PGP key 030A2708.
+    + Allow debian/upstream-signing-key.pgp to be included as a binary.
+  * Add patch to remove usage of remote-hosted images in documentation.
+  * Remove .PHONY declarations from debian/rules.
+
+ -- Michael Fladischer <FladischerMichael@fladi.at>  Thu, 10 Apr 2014 13:14:55 +0200
+
+kombu (3.0.12-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh remove_nose-cover3.patch.
+  * Drop remove_nose-cover3.patch, no longer needed.
+  * Bump Build-Depends and Depends on python-ampq to >= 1.4.3.
+
+ -- Michael Fladischer <FladischerMichael@fladi.at>  Tue, 11 Feb 2014 11:10:49 +0100
+
+kombu (3.0.7-1) unstable; urgency=low
+
+  * New upstream release.
+  * No longer supports python 2.5, reflect in X-Python-Version.
+  * Bump Standards version to 3.9.5.
+  * Bump Depends and Build-Depends on python-amqp to >= 1.3.3.
+  * Bump upper version limit for Build-Depends on python-amqp to (<<
+    2.0).
+  * Refresh patch.
+  * README was renamed to README.rst.
+  * Add kombu.egg-info/requires.txt do debian/clean.
+  * Make Build-Depends on python-all and python-pika unversioned as no
+    prior versions are available in Wheezy.
+
+ -- Michael Fladischer <FladischerMichael@fladi.at>  Wed, 11 Dec 2013 11:22:10 +0100
+
+kombu (2.5.15-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Michael Fladischer <FladischerMichael@fladi.at>  Mon, 07 Oct 2013 11:40:35 +0200
+
+kombu (2.5.14-1) unstable; urgency=low
+
+  * New upstream release.
+  * Bump debhelper Build-Depends to >= 8.1.0~.
+  * Bump Standards version to 3.9.4.
+  * Bump Depends and Build-Depends on python-amqp to >= 1.0.13.
+  * Add python-librabbitmq to Build-Depends and Depends as the preferred
+    alternative to python-amqp.
+  * Add python-beanstalkc to Build-Depends and Suggests.
+  * Drop temporary workaround for Metadata-Version in d/rules.
+
+ -- Michael Fladischer <FladischerMichael@fladi.at>  Mon, 02 Sep 2013 19:40:58 +0200
+
+kombu (2.5.12-1) unstable; urgency=low
+
+  [ Thomas Goirand ]
+  * Team upload.
+  * New upstream release.
+  * Now depending on new python-amqp instead of python-amqplib.
+
+  [ Jakub Wilk <jwilk@debian.org> ]
+  * Use canonical URIs for Vcs-* fields.
+
+  [ Michael Fladischer <FladischerMichael@fladi.at> ]
+  * Bump dependency on python-anyjson to >= 0.3.3.
+  * Refresh patches.
+
+ -- Thomas Goirand <zigo@debian.org>  Thu, 27 Jun 2013 09:32:47 +0000
+
+kombu (2.1.8-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Michael Fladischer <FladischerMichael@fladi.at>  Mon, 23 Apr 2012 15:20:01 +0200
+
+kombu (2.1.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * Update years in d/copyright.
+  * Bump to standards version 3.9.3.
+  * Update DEP-5 URL to 1.0.
+
+ -- Michael Fladischer <FladischerMichael@fladi.at>  Tue, 27 Mar 2012 16:54:58 +0100
+
+kombu (2.1.0-1) unstable; urgency=low
+
+  * New upstream release (Closes: #611895).
+  * Add python-pika, python-sqlalchemy and python-django to Suggests/B-D
+    because of new transports.
+  * Increase X-Python-Version because python 2.4 is not longer supported
+    by upstream in 2.x releases.
+  * Add python-mock to B-D because tests require it.
+  * Make Metadata-Version fix more generic.
+  * Change order of my name.
+  * Update patch.
+  * Add NEWS file to inform about backwards-incompatible changes to transports.
+
+ -- Michael Fladischer <FladischerMichael@fladi.at>  Wed, 22 Feb 2012 15:11:14 +0200
+
+kombu (1.4.3-1) unstable; urgency=low
+
+  [ Fladischer Michael ]
+  * New upstream release.
+  * Temporary fix for Metadata-Version in PKG-INFO.
+
+  [ Jakub Wilk ]
+  * Bump minimum required python-sphinx version to 1.0.7+dfsg.
+
+  [ Fladischer Michael ]
+  * Fix whitespace in versioned dependencies.
+
+ -- Fladischer Michael <FladischerMichael@fladi.at>  Thu, 17 Nov 2011 10:56:00 +0100
+
+kombu (1.2.1-1) unstable; urgency=low
+
+  * New upstream release.
+  * Depend on python-anyjson (>=0.3.1), therefor no longer recommend
+    python-simplejson.
+  * Remove ${python:Breaks} as dh_python2 no longer needs it.
+  * Bumped Standards-Version to 3.9.2 (no change necessary).
+  * Add version to Breaks: python-cjson (<= 1.0.5-4+b1).
+  * Add python-boto to dependencies.
+  * Clean up after build.
+  * Use dh_sphinxdoc.
+
+ -- Fladischer Michael <FladischerMichael@fladi.at>  Mon, 05 Sep 2011 23:18:16 +0200
+
+kombu (1.0.4-1) unstable; urgency=low
+
+  * Initial release (Closes: #611809)
+
+ -- Fladischer Michael <FladischerMichael@fladi.at>  Mon, 07 Mar 2011 12:53:13 +0200
