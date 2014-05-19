@@ -1,6 +1,10 @@
 kombu (3.0.15-1pexip1) pexip; urgency=low
 
   * Prepare Pexip packaging
+  * debian/control:
+    - Remove Build-Depends we'll never use
+    - Remove bogus Breaks (as the required version of anyjson will 
+      never pick cjson as an implementation)
 
  -- John-Mark Bell <jmb@pexip.com>  Mon, 19 May 2014 12:43:08 +0000
 
