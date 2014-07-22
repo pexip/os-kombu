@@ -2,7 +2,8 @@ Source: kombu
 Section: python
 Priority: optional
 Maintainer: Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
-Uploaders: Michael Fladischer <FladischerMichael@fladi.at>
+Uploaders: Michael Fladischer <FladischerMichael@fladi.at>,
+    Brian May <bam@debian.org>
 Build-Depends: debhelper (>= 8.1.0~),
                python-all,
                python-amqp (<< 2.0),
@@ -12,7 +13,6 @@ Build-Depends: debhelper (>= 8.1.0~),
                python-boto,
                python-couchdb (>= 0.8),
                python-django,
-               python-librabbitmq,
                python-mock,
                python-msgpack,
                python-nose,
@@ -27,6 +27,7 @@ Build-Depends: debhelper (>= 8.1.0~),
                python-yaml
 Build-Conflicts: python-cjson
 X-Python-Version: >= 2.6
+XS-Testsuite: autopkgtest
 Standards-Version: 3.9.5
 Homepage: http://github.com/ask/kombu/
 Vcs-Svn: svn://anonscm.debian.org/python-modules/packages/kombu/trunk/
@@ -34,7 +35,7 @@ Vcs-Browser: http://anonscm.debian.org/viewvc/python-modules/packages/kombu/trun
 
 Package: python-kombu
 Architecture: all
-Depends: python-librabbitmq | python-amqp (>= 1.4.5),
+Depends: python-amqp (>= 1.4.5),
          python-anyjson (>= 0.3.3),
          ${misc:Depends},
          ${python:Depends}

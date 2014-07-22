@@ -1,3 +1,22 @@
+kombu (3.0.19-2) unstable; urgency=medium
+
+  [ Michael Fladischer ]
+  * Fix output redirection for nose tests used in autopkgtest (see #460242).
+
+  [ Brian May ]
+  * Remove depends on python-librabbitmq, as python-librabbitmq is broken
+    (see #747270). python-amqp should be sufficient.
+
+ -- Brian May <bam@debian.org>  Tue, 22 Jul 2014 15:20:26 +1000
+
+kombu (3.0.19-1) unstable; urgency=low
+
+  * New upstream release.
+  * Add autopkgtest that runs the upstream test suite against the installed
+    package.
+
+ -- Michael Fladischer <FladischerMichael@fladi.at>  Mon, 23 Jun 2014 10:30:21 +0200
+
 kombu (3.0.15-1) unstable; urgency=low
 
   * New upstream release.

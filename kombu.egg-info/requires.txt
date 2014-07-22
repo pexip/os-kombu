@@ -5,7 +5,7 @@ amqp>=1.4.5,<2.0
 sqlalchemy
 
 [librabbitmq]
-librabbitmq>=1.5.0
+librabbitmq>=1.5.2
 
 [sqs]
 boto>=2.13.3
@@ -30,6 +30,10 @@ couchdb
 
 [redis]
 redis>=2.8.0
+
+[:python_version=="2.6"]
+importlib
+ordereddict
 
 [pyro]
 pyro4

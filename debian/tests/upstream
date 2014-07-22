@@ -1,0 +1,3 @@
+#!/bin/sh
+
+nosetests -v -P kombu.tests 2>&1
