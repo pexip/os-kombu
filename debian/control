@@ -3,7 +3,8 @@ Section: python
 Priority: optional
 Maintainer: Pexip AS <packaging@pexip.com>
 XSBC-Pexip-Original-Maintainer: Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
-XSBC-Pexip-Original-Uploaders: Michael Fladischer <FladischerMichael@fladi.at>
+XSBC-Pexip-Original-Uploaders: Michael Fladischer <FladischerMichael@fladi.at>,
+    Brian May <bam@debian.org>
 Build-Depends: debhelper (>= 8.1.0~),
                python-all,
                python-amqp (<< 2.0),
@@ -21,6 +22,7 @@ Build-Depends: debhelper (>= 8.1.0~),
                python-yaml
 Build-Conflicts: python-cjson
 X-Python-Version: >= 2.6
+XS-Testsuite: autopkgtest
 Standards-Version: 3.9.5
 Homepage: http://github.com/ask/kombu/
 Vcs-Svn: svn://anonscm.debian.org/python-modules/packages/kombu/trunk/
@@ -29,7 +31,7 @@ XS-Pexip-Upstream: http://ftp.debian.org/debian/ jessie
 
 Package: python-kombu
 Architecture: all
-Depends: python-librabbitmq | python-amqp (>= 1.4.5),
+Depends: python-amqp (>= 1.4.5),
          python-anyjson (>= 0.3.3),
          ${misc:Depends},
          ${python:Depends}

@@ -4,6 +4,76 @@
  Change history
 ================
 
+.. _version-3.0.19:
+
+3.0.19
+======
+:release-date: 2014-06-09 03:10 P.M UTC
+:release-by: Ask Solem
+
+- The wheel distribution did not support Python 2.6 by failing to list
+  the extra dependencies required.
+
+- Durable and auto_delete queues/exchanges can be be cached using
+  ``maybe_declare``.
+
+.. _version-3.0.18:
+
+3.0.18
+======
+:release-date: 2014-06-02 06:00 P.M UTC
+:release-by: Ask Solem
+
+- A typo introduced in 3.0.17 caused kombu.async.hub to crash (Issue #360).
+
+.. _version-3.0.17:
+
+3.0.17
+======
+:release-date: 2014-06-02 05:00 P.M UTC
+:release-by: Ask Solem
+
+- ``kombu[librabbitmq]`` now depends on librabbitmq 1.5.2.
+
+- Async: Event loop now selectively removes file descriptors for the mode
+  it failed in, and keeps others (e.g read vs write).
+
+    Fix contributed by Roger Hu.
+
+- CouchDB: Now works without userid set.
+
+    Fix contributed by Latitia M. Haskins.
+
+- SQLAlchemy: Now supports recovery from connection errors.
+
+    Contributed by Felix Schwarz.
+
+- Redis: Restore at shutdown now works when ack emulation is disabled.
+
+- :func:`kombu.common.eventloop` accidentally swallowed socket errors.
+
+- Adds :func:`kombu.utils.url.sanitize_url`
+
+.. _version-3.0.16:
+
+3.0.16
+======
+:release-date: 2014-05-06 01:00 P.M UTC
+:release-by: Ask Solem
+
+- ``kombu[librabbitmq]`` now depends on librabbitmq 1.5.1.
+
+- Redis: Fixes ``TypeError`` problem in ``unregister`` (Issue #342).
+
+    Fix contributed by Tobias Schottdorf.
+
+- Tests: Some unit tests accidentally required the `redis-py` library.
+
+    Fix contributed by Randy Barlow.
+
+- librabbitmq: Would crash when using an older version of :mod:`librabbitmq`,
+  now emits warning instead.
+
 .. _version-3.0.15:
 
 3.0.15
