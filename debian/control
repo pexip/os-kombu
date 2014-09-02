@@ -12,11 +12,11 @@ Build-Depends: debhelper (>= 8.1.0~), dh-python,
  python-redis, python-setuptools,
  python-simplejson, python-sphinx (>= 1.0.7+dfsg),
  python-pika, python-unittest2,
- python3-all, python3-amqp, python3-anyjson (>= 0.3.3),
- python3-django, python3-yaml,
- python3-mock, python3-nose,
- python3-redis, python3-setuptools,
- python3-simplejson, python3-sphinx (>= 1.0.7+dfsg),
+# python3-all, python3-amqp, python3-anyjson (>= 0.3.3),
+# python3-django, python3-yaml,
+# python3-mock, python3-nose,
+# python3-redis, python3-setuptools,
+# python3-simplejson, python3-sphinx (>= 1.0.7+dfsg),
 # python3-beanstalkc, python3-boto, python3-couchdb (>= 0.8),
 # python3-pika
 Build-Conflicts: python-cjson
@@ -57,34 +57,34 @@ Description: AMQP Messaging Framework for Python
   * The ability to ensure that an operation is performed by gracefully handling
     connection and channel errors.
 
-Package: python3-kombu
-Architecture: all
-Depends: python3-amqp,
-         python3-anyjson (>= 0.3.3),
-         ${misc:Depends},
-         ${python3:Depends}
-Recommends: python3-yaml
-Suggests: python3-beanstalkc,
-          python3-boto,
-          python3-couchdb (>= 0.8),
-          python3-django,
-          python-kombu-doc,
-          python3-pika,
-          python3-pymongo (>= 2.6.2),
-          python3-redis,
-          python3-sqlalchemy
-Description: AMQP Messaging Framework for Python
- The aim of Kombu is to make messaging in Python as easy as possible by
- providing an idiomatic high-level interface for the AMQP protocol. It is meant
- to replace the carrot library by providing a compatibility layer.
- .
- Features:
-  * Allows application authors to support several message server solutions by
-    using pluggable transports.
-  * Supports automatic encoding, serialization and compression of message
-    payloads.
-  * The ability to ensure that an operation is performed by gracefully handling
-    connection and channel errors.
+#Package: python3-kombu
+#Architecture: all
+#Depends: python3-amqp,
+#         python3-anyjson (>= 0.3.3),
+#         ${misc:Depends},
+#         ${python3:Depends}
+#Recommends: python3-yaml
+#Suggests: python3-beanstalkc,
+#          python3-boto,
+#          python3-couchdb (>= 0.8),
+#          python3-django,
+#          python-kombu-doc,
+#          python3-pika,
+#          python3-pymongo (>= 2.6.2),
+#          python3-redis,
+#          python3-sqlalchemy
+#Description: AMQP Messaging Framework for Python
+# The aim of Kombu is to make messaging in Python as easy as possible by
+# providing an idiomatic high-level interface for the AMQP protocol. It is meant
+# to replace the carrot library by providing a compatibility layer.
+# .
+# Features:
+#  * Allows application authors to support several message server solutions by
+#    using pluggable transports.
+#  * Supports automatic encoding, serialization and compression of message
+#    payloads.
+#  * The ability to ensure that an operation is performed by gracefully handling
+#    connection and channel errors.
 
 Package: python-kombu-doc
 Section: doc

@@ -1,6 +1,7 @@
 kombu (3.0.21-2pexip1) unstable; urgency=low
 
   * New upstream release.
+  * debian/control, debian/rules: disable Python 3 build
 
  -- John-Mark Bell <jmb@pexip.com>  Tue, 02 Sep 2014 20:52:51 +0100
 

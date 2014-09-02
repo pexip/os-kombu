@@ -3,7 +3,7 @@
 export PYBUILD_NAME=kombu
 
 %:
-	dh $@ --with python2,python3,sphinxdoc --buildsystem=pybuild
+	dh $@ --with python2,sphinxdoc --buildsystem=pybuild
 
 override_dh_auto_build:
 	PYTHONPATH=. sphinx-build -b html -d docs/.build/.doctrees -N docs docs/.build/html
@@ -15,10 +15,10 @@ ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 	for python in $(shell pyversions -r); do \
 	  $$python setup.py test ; \
 	done
-	set -e; \
-	for python in $(shell py3versions -r); do \
-	  $$python setup.py test ; \
-	done
+	#set -e; \
+	#for python in $(shell py3versions -r); do \
+	#  $$python setup.py test ; \
+	#done
 endif
 
 override_dh_python3:
