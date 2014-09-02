@@ -1,3 +1,30 @@
+kombu (3.0.21-2pexip1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- John-Mark Bell <jmb@pexip.com>  Tue, 02 Sep 2014 20:52:51 +0100
+
+kombu (3.0.21-2) unstable; urgency=low
+
+  * Python3 package. Closes: #754047.
+  * New upstream release. Closes: #757691.
+  * Remove recommends/build-depends on python-librabbitmq as it is still
+    broken.
+
+ -- Brian May <bam@debian.org>  Mon, 11 Aug 2014 11:56:03 +1000
+
+kombu (3.0.19-3) unstable; urgency=low
+
+  * Add python-librabbitmq (>= 1.5.2) to Recommends as a optional faster
+    transport than python-amqp.
+  * Add python-librabbitmq (>= 1.5.2) to Build-Depends to enable additional
+    tests during build.
+  * Drop versioned dependencies on python-amqp as there are no older releases
+    in the archive.
+  * Run wrap-and-sort on the packaging code.
+
+ -- Michael Fladischer <FladischerMichael@fladi.at>  Sat, 09 Aug 2014 16:33:05 +0200
+
 kombu (3.0.19-2pexip1) pexip; urgency=low
 
   * New upstream release.
