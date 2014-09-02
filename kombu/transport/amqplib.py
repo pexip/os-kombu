@@ -17,6 +17,10 @@ except ImportError:
         pass
 from struct import unpack
 
+
+class NA(object):
+    pass
+
 try:
     from amqplib import client_0_8 as amqp
     from amqplib.client_0_8 import transport
@@ -24,9 +28,6 @@ try:
     from amqplib.client_0_8.exceptions import AMQPConnectionException
     from amqplib.client_0_8.exceptions import AMQPChannelException
 except ImportError:  # pragma: no cover
-
-    class NA(object):
-        pass
 
     class NAx(object):
         pass
