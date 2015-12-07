@@ -4,6 +4,288 @@
  Change history
 ================
 
+.. _version-3.0.30:
+
+3.0.30
+======
+:release-date: 2015-12-07 12:28 A.M PDT
+:release-by: Ask Solem
+
+- Fixes compatiblity with uuid in Python 2.7.11 and 3.5.1.
+
+    Fix contributed by Kai Groner.
+
+- Redis transport: Attempt at fixing problem with hanging consumer
+  after disconnected from server.
+
+- Event loop:
+    Attempt at fixing issue with 100% CPU when using the Redis transport,
+
+- Database transport: Fixed oracle compatiblity.
+
+    An "ORA-00907: missing right parenthesis" error could manifest when using
+    an Oracle database with the database transport.
+
+    Fix contributed by Deepak N.
+
+- Documentation fixes
+
+    Contributed by Tommaso Barbugli.
+
+.. _version-3.0.29:
+
+3.0.29
+======
+:release-date: 2015-10-26 11:10 A.M PDT
+:release-by: Ask Solem
+
+- Fixed serialization issue for ``bindings.as_dict()`` (Issue #453).
+
+    Fix contributed by Sergey Tikhonov.
+
+- Json serializer wrongly treated bytes as ``ascii``, not ``utf-8``
+  (Issue #532).
+
+- MongoDB: Now supports pymongo 3.x.
+
+    Contributed by Len Buckens.
+
+- SQS: Tests passing on Python 3.
+
+    Fix contributed by Felix Yan
+
+.. _version-3.0.28:
+
+3.0.28
+======
+:release-date: 2015-10-12 12:00 P.M PDT
+:release-by: Ask Solem
+
+:.. admonition:: Django transport migrations.
+
+    If you're using Django 1.8 and have already created the
+    kombu_transport_django tables, you have to run a fake initial migration:
+
+    .. code-block:: pycon
+
+        python manage.py migrate kombu_transport_django --fake-initial
+
+- No longer compatible with South by default.
+
+    To keep using kombu.transport.django with South migrations
+    you now need to configure a new location for the kombu migrations:
+
+    .. code-block:: python
+
+        SOUTH_MIGRATION_MODULES = {
+            'kombu_transport_django':
+                'kombu.transport.django.south_migrations',
+        }
+
+- Keep old South migrations in ``kombu.south.migrations``.
+
+- Now works with Redis < 2.10 again.
+
+.. _version-3.0.27:
+
+3.0.27
+======
+:release-date: 2015-10-09 3:10 P.M PDT
+:release-by: Ask Solem
+
+- Now depends on :mod:`amqp` 1.4.7.
+
+- Fixed libSystem import error on some OS X 10.11 (El Capitan) installations.
+
+    Fix contributed by Eric Wang.
+
+- Now compatible with Django 1.9.
+
+- Django: Adds migrations for the database transport.
+
+- Redis: Now depends on py-redis 2.10.0 or later (Issue #468).
+
+- QPid: Can now connect as localhost (Issue #519).
+
+    Fix contributed by Brian Bouterse.
+
+- QPid: Adds support for ``login_method`` (Issue #502, Issue #499).
+
+    Contributed by Brian Bouterse.
+
+- QPid: Now reads SASL mechanism from broker string (Issue #498).
+
+    Fix contributed by Brian Bouterse.
+
+- QPid: Monitor thread now properly terminated on session close (Issue #485).
+
+    Fix contributed by Brian Bouterse.
+
+- QPid: Fixed file descriptor leak (Issue #476).
+
+    Fix contributed by Jeff Ortel
+
+- Docs: Fixed wrong order for entrypoint arguments (Issue #473).
+
+- ConsumerMixin: Connection error logs now include traceback (Issue #480).
+
+- BaseTransport now raises RecoverableConnectionError when disconnected
+  (Issue #507).
+
+- Consumer: Adds ``tag_prefix`` option to modify how consumer tags are
+  generated (Issue #509).
+
+.. _version-3.0.26:
+
+3.0.26
+======
+:release-date: 2015-04-22 06:00 P.M UTC
+:release-by: Ask Solem
+
+- Fixed compatibility with py-redis versions before 2.10.3 (Issue #470).
+
+.. _version-3.0.25:
+
+3.0.25
+======
+:release-date: 2015-04-21 02:00 P.M UTC
+:release-by: Ask Solem
+
+- pyamqp/librabbitmq now uses 5671 as default port when SSL is enabled
+  (Issue #459).
+
+- Redis: Now supports passwords in ``redis+socket://:pass@host:port`` URLs
+  (Issue #460).
+
+- ``Producer.publish`` now defines the ``expiration`` property in support
+  of the `RabbitMQ per-message TTL extension`_.
+
+    Contributed by Anastasis Andronidis.
+
+- Connection transport attribute now set correctly for all transports.
+
+    Contributed by Alex Koshelev.
+
+- qpid: Fixed bug where the connectionw as not being closed properly.
+
+    Contributed by Brian Bouterse.
+
+- :class:`~kombu.entity.bindings` is now JSON serializable (Issue #453).
+
+    Contributed by Sergey Tikhonov.
+
+- Fixed typo in error when yaml is not installed (said ``msgpack``).
+
+    Contributed by Joshua Harlow.
+
+- Redis: Now properly handles ``TimeoutError raised by py-redis.
+
+    Contributed by markow.
+
+- qpid: Adds additional string to check for when connecting to qpid.
+
+    When we connect to qpid, we need to ensure that we skip to the next SASL
+    mechanism if the current mechanism fails. Otherwise, we will keep retrying the
+    connection with a non-working mech.
+
+    Contributed by Chris Duryee.
+
+- qpid: Handle ``NotFound`` exceptions.
+
+    Contributed by Brian Bouterse.
+
+- :class:`Queue.__repr__` now makes sure return value is not unicode
+  (Issue #440).
+
+- qpid: ``Queue.purge`` incorrectly raised :exc:`AttributeErrror` if the
+  does not exist (Issue #439).
+
+    Contributed by Brian Bouterse.
+
+- Linux: Now ignores permission errors on epoll unregister.
+
+.. _`RabbitMQ per-message TTL extension`: https://www.rabbitmq.com/ttl.html
+
+.. _version-3.0.24:
+
+3.0.24
+======
+:release-date: 2014-11-17 11:00 P.M UTC
+:release-by: Ask Solem
+
+- The `Qpid <http://qpid.apache.org/>`_ broker is supported for Python 2.x
+  environments. The Qpid transport includes full SSL support within Kombu. See
+  the :mod:`kombu.transport.qpid` docs for more info.
+
+    Contributed by Brian Bouterse and Chris Duryee through support from Red Hat.
+
+- Dependencies: extra[librabbitmq] now requires librabbitmq 1.6.0
+
+- Docstrings for :class:`~kombu.utils.limit.TokenBucket` did not match
+  implementation.
+
+    Fix contributed by Jesse Dhillon.
+
+- :func:`~kombu.common.oid_from` accidentally called ``uuid.getnode()`` but
+  did not use the return value.
+
+    Fix contributed by Alexander Todorov.
+
+- Redis: Now ignores errors when cosing the underlying connection.
+
+- Redis: Restoring messages will now use a single connection.
+
+- ``kombu.five.monotonic``: Can now be imported even if ctypes is not
+  available for some reason (e.g. App Engine)
+
+- Documentation: Improved example to use the ``declare`` argument to
+  ``Producer`` (Issue #423).
+
+- Django: Fixed ``app_label`` for older Django versions (``< 1.7``).
+  (Issue #414).
+
+.. _version-3.0.23:
+
+3.0.23
+======
+:release-date: 2014-09-14 10:45 P.M UTC
+:release-by: Ask Solem
+
+- Django: Fixed bug in the Django 1.7 compatibility improvements related
+  to autocommit handling.
+
+    Contributed by Radek Czajka.
+
+- Django: The Django transport models would not be created on syncdb
+  after app label rename (Issue #406).
+
+.. _version-3.0.22:
+
+3.0.22
+======
+:release-date: 2014-09-04 03:00 P.M UTC
+:release-by: Ask Solem
+
+- kombu.async: Min. delay between waiting for timer was always increased to
+  one second.
+
+- Fixed bug in itermessages where message is received after the with
+  statement exits the block.
+
+    Fixed by Rumyana Neykova
+
+- Connection.autoretry: Now works with functions missing wrapped attributes
+    (``__module__``, ``__name__``, ``__doc__``).  Fixes #392.
+
+    Contributed by johtso.
+
+- Django: Now sets custom app label for ``kombu.transport.django`` to work
+  with recent changes in Django 1.7.
+
+- SimpleQueue removed messages from the wrong end of buffer (Issue #380).
+
+- Tests: Now using ``unittest.mock`` if available (Issue #381).
+
 .. _version-3.0.21:
 
 3.0.21

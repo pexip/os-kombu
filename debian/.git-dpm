@@ -1,0 +1,11 @@
+# see git-dpm(1) from git-dpm package
+5b991a909b078067a9702ab1ce7669a88da71f1d
+5b991a909b078067a9702ab1ce7669a88da71f1d
+a2b1b2e701b7299f7dc4c5dc4ad4662cb9ddfa67
+a2b1b2e701b7299f7dc4c5dc4ad4662cb9ddfa67
+kombu_3.0.30.orig.tar.gz
+6c2abf37c32048a1db940a94d85349533eb9c1c1
+380706
+debianTag="debian/%e%v"
+patchedTag="patched/%e%v"
+upstreamTag="upstream/%e%u"

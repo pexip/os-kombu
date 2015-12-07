@@ -106,10 +106,10 @@ Sending raw data without Serialization
 ======================================
 
 In some cases, you don't need your message data to be serialized. If you
-pass in a plain string or Unicode object as your message, then `Kombu` will
+pass in a plain string or Unicode object as your message and a custom `content_type`, then `Kombu` will
 not waste cycles serializing/deserializing the data.
 
-You can optionally specify a `content_type` and `content_encoding`
+You can optionally specify a `content_encoding`
 for the raw data::
 
     >>> with open("~/my_picture.jpg", "rb") as fh:
@@ -131,7 +131,7 @@ entry-points.
 
 The entry-point must provide the name of the serializer along
 with the path to a tuple providing the rest of the args:
-``decoder_function, encoder_function, content_type, content_encoding``.
+``encoder_function, decoder_function, content_type, content_encoding``.
 
 An example entrypoint could be:
 
@@ -152,7 +152,7 @@ Then the module ``my_module.serializer`` would look like:
 
 .. code-block:: python
 
-    register_args = (my_decoder, my_encoder, 'application/x-mimetype', 'utf-8')
+    register_args = (my_encoder, my_decoder, 'application/x-mimetype', 'utf-8')
 
 
 When this package is installed the new 'my_serializer' serializer will be

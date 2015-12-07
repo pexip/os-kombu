@@ -6,7 +6,10 @@ import types
 
 from functools import wraps
 
-import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock  # noqa
 
 from nose import SkipTest
 
@@ -21,6 +24,7 @@ except AttributeError:
 
 PY3 = sys.version_info[0] == 3
 
+MagicMock = mock.MagicMock
 patch = mock.patch
 call = mock.call
 
@@ -47,7 +51,7 @@ class _ContextMock(Mock):
     in the class, not just the instance."""
 
     def __enter__(self):
-        pass
+        return self
 
     def __exit__(self, *exc_info):
         pass
@@ -189,3 +193,27 @@ def skip_if_not_module(module, import_errors=(ImportError, )):
 
 def skip_if_quick(fun):
     return skip_if_environ('QUICKTEST')(fun)
+
+
+def case_no_pypy(cls):
+    setup = cls.setUp
+
+    @wraps(setup)
+    def around_setup(self):
+        if getattr(sys, 'pypy_version_info', None):
+            raise SkipTest('pypy incompatible')
+        setup(self)
+    cls.setUp = around_setup
+    return cls
+
+
+def case_no_python3(cls):
+    setup = cls.setUp
+
+    @wraps(setup)
+    def around_setup(self):
+        if PY3:
+            raise SkipTest('Python3 incompatible')
+        setup(self)
+    cls.setUp = around_setup
+    return cls

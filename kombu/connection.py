@@ -65,8 +65,8 @@ class Connection(object):
 
     .. admonition:: SSL compatibility
 
-        SSL currently only works with the py-amqp & amqplib transports.
-        For other transports you can use stunnel.
+        SSL currently only works with the py-amqp, amqplib, and qpid
+        transports.  For other transports you can use stunnel.
 
     :keyword hostname: Default host name/address if not provided in the URL.
     :keyword userid: Default user name if not provided in the URL.
@@ -162,12 +162,12 @@ class Connection(object):
                 transport = self.uri_prefix = params['transport']
             else:
                 transport = transport or urlparse(hostname).scheme
-                if get_transport_cls(transport).can_parse_url:
-                    # set the transport so that the default is not used.
-                    params['transport'] = transport
-                else:
+                if not get_transport_cls(transport).can_parse_url:
                     # we must parse the URL
                     params.update(parse_url(hostname))
+
+                params['transport'] = transport
+
         self._init_params(**params)
 
         # fallback hosts
@@ -495,9 +495,9 @@ class Connection(object):
         create_channel = self.channel
 
         class Revival(object):
-            __name__ = fun.__name__
-            __module__ = fun.__module__
-            __doc__ = fun.__doc__
+            __name__ = getattr(fun, '__name__', None)
+            __module__ = getattr(fun, '__module__', None)
+            __doc__ = getattr(fun, '__doc__', None)
 
             def revive(self, channel):
                 channels[0] = channel
