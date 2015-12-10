@@ -77,24 +77,20 @@ Description: AMQP Messaging Framework for Python
   * The ability to ensure that an operation is performed by gracefully handling
     connection and channel errors.
 
-<<<<<<< HEAD
 #Package: python3-kombu
 #Architecture: all
-#Depends: python3-amqp,
+#Depends: python3-amqp (>= 1.4.6),
 #         python3-anyjson (>= 0.3.3),
 #         ${misc:Depends},
 #         ${python3:Depends}
 #Recommends: python3-yaml
-#Suggests: python3-beanstalkc,
+#Suggests: python-kombu-doc,
 #          python3-boto,
-#          python3-couchdb (>= 0.8),
 #          python3-django,
-#          python-kombu-doc,
-#          python3-pika,
-#          python3-pymongo (>= 2.6.2),
+#          python3-pymongo,
 #          python3-redis,
 #          python3-sqlalchemy
-#Description: AMQP Messaging Framework for Python
+#Description: AMQP Messaging Framework for Python (Python3 version)
 # The aim of Kombu is to make messaging in Python as easy as possible by
 # providing an idiomatic high-level interface for the AMQP protocol. It is meant
 # to replace the carrot library by providing a compatibility layer.
@@ -106,35 +102,8 @@ Description: AMQP Messaging Framework for Python
 #    payloads.
 #  * The ability to ensure that an operation is performed by gracefully handling
 #    connection and channel errors.
-=======
-Package: python3-kombu
-Architecture: all
-Depends: python3-amqp (>= 1.4.6),
-         python3-anyjson (>= 0.3.3),
-         ${misc:Depends},
-         ${python3:Depends}
-Recommends: python3-yaml
-Suggests: python-kombu-doc,
-          python3-boto,
-          python3-django,
-          python3-pymongo,
-          python3-redis,
-          python3-sqlalchemy
-Description: AMQP Messaging Framework for Python (Python3 version)
- The aim of Kombu is to make messaging in Python as easy as possible by
- providing an idiomatic high-level interface for the AMQP protocol. It is meant
- to replace the carrot library by providing a compatibility layer.
- .
- Features:
-  * Allows application authors to support several message server solutions by
-    using pluggable transports.
-  * Supports automatic encoding, serialization and compression of message
-    payloads.
-  * The ability to ensure that an operation is performed by gracefully handling
-    connection and channel errors.
- .
- This package contains the Python 3 version of the library.
->>>>>>> debian/3.0.30-1
+# .
+# This package contains the Python 3 version of the library.
 
 Package: python-kombu-doc
 Section: doc
