@@ -63,6 +63,7 @@ docs/reference/kombu.transport.memory.rst
 docs/reference/kombu.transport.mongodb.rst
 docs/reference/kombu.transport.pyamqp.rst
 docs/reference/kombu.transport.pyro.rst
+docs/reference/kombu.transport.qpid.rst
 docs/reference/kombu.transport.redis.rst
 docs/reference/kombu.transport.rst
 docs/reference/kombu.transport.sqlalchemy.models.rst
@@ -106,6 +107,8 @@ examples/simple_task_queue/queues.py
 examples/simple_task_queue/tasks.py
 examples/simple_task_queue/worker.py
 extra/doc2ghpages
+extra/appveyor/install.ps1
+extra/appveyor/run_with_compiler.cmd
 extra/release/bump_version.py
 extra/release/doc4allmods
 extra/release/flakeplus.py
@@ -126,6 +129,7 @@ funtests/tests/test_django.py
 funtests/tests/test_librabbitmq.py
 funtests/tests/test_mongodb.py
 funtests/tests/test_pyamqp.py
+funtests/tests/test_qpid.py
 funtests/tests/test_redis.py
 funtests/tests/test_sqla.py
 funtests/tests/test_zookeeper.py
@@ -188,6 +192,7 @@ kombu/tests/transport/test_librabbitmq.py
 kombu/tests/transport/test_memory.py
 kombu/tests/transport/test_mongodb.py
 kombu/tests/transport/test_pyamqp.py
+kombu/tests/transport/test_qpid.py
 kombu/tests/transport/test_redis.py
 kombu/tests/transport/test_sqlalchemy.py
 kombu/tests/transport/test_transport.py
@@ -214,6 +219,7 @@ kombu/transport/memory.py
 kombu/transport/mongodb.py
 kombu/transport/pyamqp.py
 kombu/transport/pyro.py
+kombu/transport/qpid.py
 kombu/transport/redis.py
 kombu/transport/zmq.py
 kombu/transport/zookeeper.py
@@ -225,6 +231,8 @@ kombu/transport/django/management/commands/__init__.py
 kombu/transport/django/management/commands/clean_kombu_messages.py
 kombu/transport/django/migrations/0001_initial.py
 kombu/transport/django/migrations/__init__.py
+kombu/transport/django/south_migrations/0001_initial.py
+kombu/transport/django/south_migrations/__init__.py
 kombu/transport/sqlalchemy/__init__.py
 kombu/transport/sqlalchemy/models.py
 kombu/transport/virtual/__init__.py
@@ -257,6 +265,7 @@ requirements/extras/librabbitmq.txt
 requirements/extras/mongodb.txt
 requirements/extras/msgpack.txt
 requirements/extras/pyro.txt
+requirements/extras/qpid.txt
 requirements/extras/redis.txt
 requirements/extras/slmq.txt
 requirements/extras/sqlalchemy.txt

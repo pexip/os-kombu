@@ -1,11 +1,11 @@
 anyjson>=0.3.3
-amqp>=1.4.5,<2.0
+amqp>=1.4.7,<2.0
 
 [sqlalchemy]
 sqlalchemy
 
 [librabbitmq]
-librabbitmq>=1.5.2
+librabbitmq>=1.6.1
 
 [sqs]
 boto>=2.13.3
@@ -22,6 +22,10 @@ beanstalkc
 [slmq]
 softlayer_messaging>=1.0.3
 
+[qpid]
+qpid-python>=0.26
+qpid-tools>=0.26
+
 [msgpack]
 msgpack-python>=0.3.0
 
@@ -29,7 +33,7 @@ msgpack-python>=0.3.0
 couchdb
 
 [redis]
-redis>=2.8.0
+redis>=2.10.3
 
 [:python_version=="2.6"]
 importlib

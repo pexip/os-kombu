@@ -23,12 +23,12 @@ Files: kombu/transport/mongodb.py
 Copyright: 2010-2011, Flavio Percoco Premoli
 License: BSD-solem
 
-Files: kombu/transport/pycouchdb.py
-Copyright: 2010-2011, David Clymer
+Files: kombu/transport/couchdb.py
+Copyright: 2010-2011, David Clymer <david@zettazebra.com>
 License: BSD-solem
 
 Files: debian/*
-Copyright: 2012, Michael Fladischer <FladischerMichael@fladi.at>
+Copyright: 2012-2015, Michael Fladischer <fladi@debian.org>
 License: BSD-solem
 
 License: BSD-solem

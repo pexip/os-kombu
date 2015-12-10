@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: kombu
-Version: 3.0.21
+Version: 3.0.30
 Summary: Messaging library for Python
 Home-page: http://kombu.readthedocs.org
 Author: Ask Solem
@@ -12,7 +12,7 @@ Description: .. _kombu-index:
          kombu - Messaging library for Python
         ========================================
         
-        :Version: 3.0.21
+        :Version: 3.0.30
         
         `Kombu` is a messaging library for Python.
         
@@ -30,7 +30,7 @@ Description: .. _kombu-index:
         * Allows application authors to support several message server
           solutions by using pluggable transports.
         
-            * AMQP transport using the `py-amqp`_ or `librabbitmq`_ client libraries.
+            * AMQP transport using the `py-amqp`_, `librabbitmq`_, or `qpid-python`_ client libraries.
         
             * High performance AMQP transport written in C - when using `librabbitmq`_
         
@@ -68,6 +68,7 @@ Description: .. _kombu-index:
         .. _`RabbitMQ`: http://www.rabbitmq.com/
         .. _`AMQP`: http://amqp.org
         .. _`py-amqp`: http://pypi.python.org/pypi/amqp/
+        .. _`qpid-python`: http://pypi.python.org/pypi/qpid-python/
         .. _`Redis`: http://code.google.com/p/redis/
         .. _`Amazon SQS`: http://aws.amazon.com/sqs/
         .. _`MongoDB`: http://www.mongodb.org/
@@ -93,6 +94,8 @@ Description: .. _kombu-index:
         | **Client**    | **Type** | **Direct** | **Topic**  | **Fanout**    |
         +---------------+----------+------------+------------+---------------+
         | *amqp*        | Native   | Yes        | Yes        | Yes           |
+        +---------------+----------+------------+------------+---------------+
+        | *qpid*        | Native   | Yes        | Yes        | Yes           |
         +---------------+----------+------------+------------+---------------+
         | *redis*       | Virtual  | Yes        | Yes        | Yes (PUB/SUB) |
         +---------------+----------+------------+------------+---------------+
