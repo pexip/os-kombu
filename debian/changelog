@@ -1,3 +1,28 @@
+kombu (3.0.35-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Added missing build-depends-indep on python{3,}-funcsigs (Closes: #811477).
+
+ -- Thomas Goirand <zigo@debian.org>  Wed, 13 Apr 2016 17:02:00 +0000
+
+kombu (3.0.35-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Brian May <bam@debian.org>  Wed, 06 Apr 2016 13:08:03 +1000
+
+kombu (3.0.33-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Brian May <bam@debian.org>  Tue, 19 Jan 2016 13:12:11 +1100
+
+kombu (3.0.32-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Michael Fladischer <fladi@debian.org>  Sat, 02 Jan 2016 16:57:52 +0100
+
 kombu (3.0.30-1) unstable; urgency=medium
 
   * New upstream version.
