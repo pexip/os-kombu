@@ -89,7 +89,7 @@ def get_redis_error_classes():
             OSError,
             exceptions.ConnectionError,
             exceptions.AuthenticationError,
-            getattr(exceptions, 'south_south_TimeoutError', None))))),
+            getattr(exceptions, 'TimeoutError', None))))),
         (virtual.Transport.channel_errors + (
             DataError,
             exceptions.InvalidResponse,
@@ -395,6 +395,9 @@ class Channel(virtual.Channel):
     visibility_timeout = 3600   # 1 hour
     priority_steps = PRIORITY_STEPS
     socket_timeout = None
+    socket_connect_timeout = None
+    socket_keepalive = None
+    socket_keepalive_options = None
     max_connections = 10
     #: Transport option to enable disable fanout keyprefix.
     #: Should be enabled by default, but that is not
@@ -407,7 +410,10 @@ class Channel(virtual.Channel):
     #: and binding keys (like a topic exchange but using PUB/SUB).
     #: This will be enabled by default in a future version.
     fanout_patterns = False
+
+    _async_pool = None
     _pool = None
+    _disconnecting_pools = False
 
     from_transport_options = (
         virtual.Channel.from_transport_options +
@@ -421,6 +427,10 @@ class Channel(virtual.Channel):
          'fanout_prefix',
          'fanout_patterns',
          'socket_timeout',
+         'socket_connect_timeout',
+         'socket_keepalive',
+         'socket_keepalive_options',
+         'queue_order_strategy',
          'max_connections',
          'priority_steps')  # <-- do not add comma here!
     )
@@ -433,7 +443,8 @@ class Channel(virtual.Channel):
             self.QoS = virtual.QoS
 
         self._queue_cycle = []
-        self.Client = self._get_client()
+        self.AsyncClient = self._get_async_client()
+        self.Client = redis.Redis
         self.ResponseError = self._get_response_error()
         self.active_fanout_queues = set()
         self.auto_delete_queues = set()
@@ -452,8 +463,7 @@ class Channel(virtual.Channel):
         try:
             self.client.info()
         except Exception:
-            if self._pool:
-                self._pool.disconnect()
+            self._disconnect_pools()
             raise
 
         self.connection.cycle.add(self)  # add to channel poller.
@@ -464,14 +474,26 @@ class Channel(virtual.Channel):
         register_after_fork(self, self._after_fork)
 
     def _after_fork(self):
-        if self._pool is not None:
-            self._pool.disconnect()
+        self._disconnect_pools()
+
+    def _disconnect_pools(self):
+        if not self._disconnecting_pools:
+            self._disconnecting_pools = True
+            try:
+                if self._async_pool is not None:
+                    self._async_pool.disconnect()
+                if self._pool is not None:
+                    self._pool.disconnect()
+                self._async_pool = self._pool = None
+            finally:
+                self._disconnecting_pools = False
 
     def _on_connection_disconnect(self, connection):
         self._in_poll = False
         self._in_listen = False
         if self.connection and self.connection.cycle:
             self.connection.cycle._on_connection_disconnect(connection)
+        self._disconnect_pools()
         if not self._closing:
             raise get_redis_ConnectionError()
 
@@ -749,8 +771,7 @@ class Channel(virtual.Channel):
 
     def close(self):
         self._closing = True
-        if self._pool:
-            self._pool.disconnect()
+        self._disconnect_pools()
         if not self.closed:
             # remove from channel poller.
             self.connection.cycle.discard(self)
@@ -787,14 +808,26 @@ class Channel(virtual.Channel):
                     ))
         return vhost
 
-    def _connparams(self):
+    def _connparams(self, async=False):
         conninfo = self.connection.client
-        connparams = {'host': conninfo.hostname or '127.0.0.1',
-                      'port': conninfo.port or DEFAULT_PORT,
-                      'virtual_host': conninfo.virtual_host,
-                      'password': conninfo.password,
-                      'max_connections': self.max_connections,
-                      'socket_timeout': self.socket_timeout}
+        connparams = {
+            'host': conninfo.hostname or '127.0.0.1',
+            'port': conninfo.port or DEFAULT_PORT,
+            'virtual_host': conninfo.virtual_host,
+            'password': conninfo.password,
+            'max_connections': self.max_connections,
+            'socket_timeout': self.socket_timeout,
+            'socket_connect_timeout': self.socket_connect_timeout,
+            'socket_keepalive': self.socket_keepalive,
+            'socket_keepalive_options': self.socket_keepalive_options,
+        }
+        if redis.VERSION < (2, 10):
+            for param in ('socket_keepalive', 'socket_keepalive_options'):
+                val = connparams.pop('socket_keepalive', None)
+                if val is not None:
+                    raise VersionMismatch(
+                        'redis: {0!r} requires redis 2.10.0 or higher'.format(
+                            param))
         host = connparams['host']
         if '://' in host:
             scheme, _, _, _, password, path, query = _parse_url(host)
@@ -814,52 +847,48 @@ class Channel(virtual.Channel):
             redis.Connection
         )
 
-        class Connection(connection_cls):
-            def disconnect(self):
-                channel._on_connection_disconnect(self)
-                super(Connection, self).disconnect()
-        connparams['connection_class'] = Connection
+        if async:
+            class Connection(connection_cls):
+                def disconnect(self):
+                    super(Connection, self).disconnect()
+                    channel._on_connection_disconnect(self)
+            connparams['connection_class'] = Connection
 
         return connparams
 
-    def _create_client(self):
+    def _create_client(self, async=False):
+        if async:
+            return self.AsyncClient(connection_pool=self.async_pool)
         return self.Client(connection_pool=self.pool)
 
-    def _get_pool(self):
-        params = self._connparams()
+    def _get_pool(self, async=False):
+        params = self._connparams(async=async)
         self.keyprefix_fanout = self.keyprefix_fanout.format(db=params['db'])
         return redis.ConnectionPool(**params)
 
-    def _get_client(self):
+    def _get_async_client(self):
         if redis.VERSION < (2, 4, 4):
             raise VersionMismatch(
                 'Redis transport requires redis-py versions 2.4.4 or later. '
                 'You have {0.__version__}'.format(redis))
 
-        # KombuRedis maintains a connection attribute on it's instance and
+        # AsyncRedis maintains a connection attribute on it's instance and
         # uses that when executing commands
         # This was added after redis-py was changed.
-        class KombuRedis(redis.Redis):  # pragma: no cover
+        class AsyncRedis(redis.Redis):  # pragma: no cover
 
             def __init__(self, *args, **kwargs):
-                super(KombuRedis, self).__init__(*args, **kwargs)
+                super(AsyncRedis, self).__init__(*args, **kwargs)
                 self.connection = self.connection_pool.get_connection('_')
 
-        return KombuRedis
+        return AsyncRedis
 
     @contextmanager
     def conn_or_acquire(self, client=None):
         if client:
             yield client
         else:
-            if self._in_poll:
-                client = self._create_client()
-                try:
-                    yield client
-                finally:
-                    self.pool.release(client.connection)
-            else:
-                yield self.client
+            yield self._create_client()
 
     @property
     def pool(self):
@@ -867,15 +896,21 @@ class Channel(virtual.Channel):
             self._pool = self._get_pool()
         return self._pool
 
+    @property
+    def async_pool(self):
+        if self._async_pool is None:
+            self._async_pool = self._get_pool(async=True)
+        return self._async_pool
+
     @cached_property
     def client(self):
         """Client used to publish messages, BRPOP etc."""
-        return self._create_client()
+        return self._create_client(async=True)
 
     @cached_property
     def subclient(self):
         """Pub/Sub connection used to consume fanout queues."""
-        client = self._create_client()
+        client = self._create_client(async=True)
         pubsub = client.pubsub()
         pool = pubsub.connection_pool
         pubsub.connection = pool.get_connection('pubsub', pubsub.shard_hint)
