@@ -8,11 +8,12 @@ XSBC-Pexip-Original-Uploaders: Michael Fladischer <fladi@debian.org>,
 Build-Depends: debhelper (>= 9),
                dh-python,
                python-all,
-               python-amqp (>= 1.4.6),
+               python-amqp (>= 1.4.9),
                python-anyjson (>= 0.3.3),
                python-boto,
                python-couchdb (>= 0.8),
                python-django,
+               python-funcsigs,
                python-mock,
                python-nose,
                python-pika,
@@ -26,6 +27,7 @@ Build-Depends: debhelper (>= 9),
                python3-amqp,
                python3-anyjson (>= 0.3.3),
                python3-django,
+               python3-funcsigs,
                python3-mock,
                python3-msgpack,
                python3-nose,
@@ -38,9 +40,9 @@ Build-Depends: debhelper (>= 9),
 Build-Conflicts: python-cjson
 X-Python-Version: >= 2.7
 X-Python3-Version: >= 3.3
-Standards-Version: 3.9.6
+Standards-Version: 3.9.7
 Homepage: https://github.com/celery/kombu/
-Vcs-Git: git://anonscm.debian.org/python-modules/packages/kombu.git
+Vcs-Git: https://anonscm.debian.org/git/python-modules/packages/kombu.git
 Vcs-Browser: https://anonscm.debian.org/cgit/python-modules/packages/kombu.git
 XS-Pexip-Upstream: http://ftp.debian.org/debian/ stretch
 
