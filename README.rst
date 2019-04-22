@@ -1,10 +1,17 @@
-.. _kombu-index:
-
 ========================================
  kombu - Messaging library for Python
 ========================================
 
-:Version: 3.0.35
+|build-status| |coverage| |license| |wheel| |pyversion| |pyimp|
+
+:Version: 4.2.1
+:Web: http://kombu.me/
+:Download: https://pypi.python.org/pypi/kombu/
+:Source: https://github.com/celery/kombu/
+:Keywords: messaging, amqp, rabbitmq, redis, mongodb, python, queue
+
+About
+=====
 
 `Kombu` is a messaging library for Python.
 
@@ -22,21 +29,19 @@ Features
 * Allows application authors to support several message server
   solutions by using pluggable transports.
 
-    * AMQP transport using the `py-amqp`_, `librabbitmq`_, or `qpid-python`_ client libraries.
+    * AMQP transport using the `py-amqp`_, `librabbitmq`_, or `qpid-python`_ libraries.
 
     * High performance AMQP transport written in C - when using `librabbitmq`_
 
-      This is automatically enabled if librabbitmq is installed::
+      This is automatically enabled if librabbitmq is installed:
+
+      ::
 
         $ pip install librabbitmq
 
     * Virtual transports makes it really easy to add support for non-AMQP
-      transports.  There is already built-in support for `Redis`_,
-      `Beanstalk`_, `Amazon SQS`_, `CouchDB`_, `MongoDB`_, `ZeroMQ`_,
-      `ZooKeeper`_, `SoftLayer MQ`_ and `Pyro`_.
-
-    * You can also use the SQLAlchemy and Django ORM transports to
-      use a database as the broker.
+      transports. There is already built-in support for `Redis`_,
+      `Amazon SQS`_, `ZooKeeper`_, `SoftLayer MQ`_ and `Pyro`_.
 
     * In-memory transport for unit testing.
 
@@ -57,58 +62,45 @@ Features
 For an introduction to AMQP you should read the article `Rabbits and warrens`_,
 and the `Wikipedia article about AMQP`_.
 
-.. _`RabbitMQ`: http://www.rabbitmq.com/
-.. _`AMQP`: http://amqp.org
-.. _`py-amqp`: http://pypi.python.org/pypi/amqp/
-.. _`qpid-python`: http://pypi.python.org/pypi/qpid-python/
-.. _`Redis`: http://code.google.com/p/redis/
-.. _`Amazon SQS`: http://aws.amazon.com/sqs/
-.. _`MongoDB`: http://www.mongodb.org/
-.. _`CouchDB`: http://couchdb.apache.org/
-.. _`ZeroMQ`: http://zeromq.org/
+.. _`RabbitMQ`: https://www.rabbitmq.com/
+.. _`AMQP`: https://amqp.org
+.. _`py-amqp`: https://pypi.python.org/pypi/amqp/
+.. _`qpid-python`: https://pypi.python.org/pypi/qpid-python/
+.. _`Redis`: https://redis.io
+.. _`Amazon SQS`: https://aws.amazon.com/sqs/
 .. _`Zookeeper`: https://zookeeper.apache.org/
-.. _`Beanstalk`: http://kr.github.com/beanstalkd/
-.. _`Rabbits and warrens`: http://blogs.digitar.com/jjww/2009/01/rabbits-and-warrens/
-.. _`amqplib`: http://barryp.org/software/py-amqplib/
-.. _`Wikipedia article about AMQP`: http://en.wikipedia.org/wiki/AMQP
-.. _`carrot`: http://pypi.python.org/pypi/carrot/
-.. _`librabbitmq`: http://pypi.python.org/pypi/librabbitmq
-.. _`Pyro`: http://pythonhosting.org/Pyro
-.. _`SoftLayer MQ`: http://www.softlayer.com/services/additional/message-queue
-
+.. _`Rabbits and warrens`: http://web.archive.org/web/20160323134044/http://blogs.digitar.com/jjww/2009/01/rabbits-and-warrens/
+.. _`amqplib`: https://barryp.org/software/py-amqplib/
+.. _`Wikipedia article about AMQP`: https://en.wikipedia.org/wiki/AMQP
+.. _`carrot`: https://pypi.python.org/pypi/carrot/
+.. _`librabbitmq`: https://pypi.python.org/pypi/librabbitmq
+.. _`Pyro`: https://pythonhosting.org/Pyro4
+.. _`SoftLayer MQ`: https://sldn.softlayer.com/reference/messagequeueapi
 
 .. _transport-comparison:
 
 Transport Comparison
 ====================
 
-+---------------+----------+------------+------------+---------------+
-| **Client**    | **Type** | **Direct** | **Topic**  | **Fanout**    |
-+---------------+----------+------------+------------+---------------+
-| *amqp*        | Native   | Yes        | Yes        | Yes           |
-+---------------+----------+------------+------------+---------------+
-| *qpid*        | Native   | Yes        | Yes        | Yes           |
-+---------------+----------+------------+------------+---------------+
-| *redis*       | Virtual  | Yes        | Yes        | Yes (PUB/SUB) |
-+---------------+----------+------------+------------+---------------+
-| *mongodb*     | Virtual  | Yes        | Yes        | Yes           |
-+---------------+----------+------------+------------+---------------+
-| *beanstalk*   | Virtual  | Yes        | Yes [#f1]_ | No            |
-+---------------+----------+------------+------------+---------------+
-| *SQS*         | Virtual  | Yes        | Yes [#f1]_ | Yes [#f2]_    |
-+---------------+----------+------------+------------+---------------+
-| *couchdb*     | Virtual  | Yes        | Yes [#f1]_ | No            |
-+---------------+----------+------------+------------+---------------+
-| *zookeeper*   | Virtual  | Yes        | Yes [#f1]_ | No            |
-+---------------+----------+------------+------------+---------------+
-| *in-memory*   | Virtual  | Yes        | Yes [#f1]_ | No            |
-+---------------+----------+------------+------------+---------------+
-| *django*      | Virtual  | Yes        | Yes [#f1]_ | No            |
-+---------------+----------+------------+------------+---------------+
-| *sqlalchemy*  | Virtual  | Yes        | Yes [#f1]_ | No            |
-+---------------+----------+------------+------------+---------------+
-| *SLMQ*        | Virtual  | Yes        | Yes [#f1]_ | No            |
-+---------------+----------+------------+------------+---------------+
++---------------+----------+------------+------------+---------------+--------------+-----------------------+
+| **Client**    | **Type** | **Direct** | **Topic**  | **Fanout**    | **Priority** | **TTL**               |
++---------------+----------+------------+------------+---------------+--------------+-----------------------+
+| *amqp*        | Native   | Yes        | Yes        | Yes           | Yes [#f3]_   | Yes [#f4]_            |
++---------------+----------+------------+------------+---------------+--------------+-----------------------+
+| *qpid*        | Native   | Yes        | Yes        | Yes           | No           | No                    |
++---------------+----------+------------+------------+---------------+--------------+-----------------------+
+| *redis*       | Virtual  | Yes        | Yes        | Yes (PUB/SUB) | Yes          | No                    |
++---------------+----------+------------+------------+---------------+--------------+-----------------------+
+| *mongodb*     | Virtual  | Yes        | Yes        | Yes           | Yes          | Yes                   |
++---------------+----------+------------+------------+---------------+--------------+-----------------------+
+| *SQS*         | Virtual  | Yes        | Yes [#f1]_ | Yes [#f2]_    | No           | No                    |
++---------------+----------+------------+------------+---------------+--------------+-----------------------+
+| *zookeeper*   | Virtual  | Yes        | Yes [#f1]_ | No            | Yes          | No                    |
++---------------+----------+------------+------------+---------------+--------------+-----------------------+
+| *in-memory*   | Virtual  | Yes        | Yes [#f1]_ | No            | No           | No                    |
++---------------+----------+------------+------------+---------------+--------------+-----------------------+
+| *SLMQ*        | Virtual  | Yes        | Yes [#f1]_ | No            | No           | No                    |
++---------------+----------+------------+------------+---------------+--------------+-----------------------+
 
 
 .. [#f1] Declarations only kept in memory, so exchanges/queues
@@ -118,18 +110,21 @@ Transport Comparison
          Disabled by default, but can be enabled by using the
          ``supports_fanout`` transport option.
 
+.. [#f3] AMQP Message priority support depends on broker implementation.
+
+.. [#f4] AMQP Message/Queue TTL support depends on broker implementation.
 
 Documentation
 -------------
 
 Kombu is using Sphinx, and the latest documentation can be found here:
 
-    http://kombu.readthedocs.org/
+    https://kombu.readthedocs.io/
 
 Quick overview
 --------------
 
-::
+.. code:: python
 
     from kombu import Connection, Exchange, Queue
 
@@ -152,7 +147,7 @@ Quick overview
         # the declare above, makes sure the video queue is declared
         # so that the messages can be delivered.
         # It's a best practice in Kombu to have both publishers and
-        # consumers declare the queue.  You can also declare the
+        # consumers declare the queue. You can also declare the
         # queue manually using:
         #     video_queue(conn).declare()
 
@@ -172,7 +167,9 @@ Quick overview
             connection.drain_events()
 
 
-Or handle channels manually::
+Or handle channels manually:
+
+.. code:: python
 
     with connection.channel() as channel:
         producer = Producer(channel, ...)
@@ -180,7 +177,9 @@ Or handle channels manually::
 
 
 All objects can be used outside of with statements too,
-just remember to close the objects after use::
+just remember to close the objects after use:
+
+.. code:: python
 
     from kombu import Connection, Consumer, Producer
 
@@ -217,27 +216,6 @@ that connections default channel.
     raise NotBoundError: Can't call delete on Exchange not bound to
         a channel.
 
-Installation
-============
-
-You can install `Kombu` either via the Python Package Index (PyPI)
-or from source.
-
-To install using `pip`,::
-
-    $ pip install kombu
-
-To install using `easy_install`,::
-
-    $ easy_install kombu
-
-If you have downloaded a source tarball you can install it
-by doing the following,::
-
-    $ python setup.py build
-    # python setup.py install # as root
-
-
 Terminology
 ===========
 
@@ -267,7 +245,7 @@ There are some concepts you should be familiar with before starting:
 
     * Routing keys
 
-        Every message has a routing key.  The interpretation of the routing
+        Every message has a routing key. The interpretation of the routing
         key depends on the exchange type. There are four default exchange
         types defined by the AMQP standard, and vendors can define custom
         types (so see your vendors manual for details).
@@ -295,26 +273,55 @@ There are some concepts you should be familiar with before starting:
                 routing keys `"usd.stock"` and `"eur.stock.db"` but not
                 `"stock.nasdaq"`.
 
+
+Installation
+============
+
+You can install `Kombu` either via the Python Package Index (PyPI)
+or from source.
+
+To install using `pip`,:
+
+::
+
+    $ pip install kombu
+
+To install using `easy_install`,:
+
+::
+
+    $ easy_install kombu
+
+If you have downloaded a source tarball you can install it
+by doing the following,:
+
+::
+
+    $ python setup.py build
+    # python setup.py install # as root
+
+
+
 Getting Help
 ============
 
 Mailing list
 ------------
 
-Join the `carrot-users`_ mailing list.
+Join the `celery-users`_ mailing list.
 
-.. _`carrot-users`: http://groups.google.com/group/carrot-users/
+.. _`celery-users`: https://groups.google.com/group/celery-users/
 
 Bug tracker
 ===========
 
 If you have any suggestions, bug reports or annoyances please report them
-to our issue tracker at http://github.com/celery/kombu/issues/
+to our issue tracker at https://github.com/celery/kombu/issues/
 
 Contributing
 ============
 
-Development of `Kombu` happens at Github: http://github.com/celery/kombu
+Development of `Kombu` happens at Github: https://github.com/celery/kombu
 
 You are highly encouraged to participate in the development. If you don't
 like Github (for some reason) you're welcome to send regular patches.
@@ -325,6 +332,28 @@ License
 This software is licensed under the `New BSD License`. See the `LICENSE`
 file in the top distribution directory for the full license text.
 
-.. image:: https://d2weczhvl823v0.cloudfront.net/celery/kombu/trend.png
-    :alt: Bitdeli badge
-    :target: https://bitdeli.com/free
+
+.. |build-status| image:: https://secure.travis-ci.org/celery/kombu.png?branch=master
+    :alt: Build status
+    :target: https://travis-ci.org/celery/kombu
+
+.. |coverage| image:: https://codecov.io/github/celery/kombu/coverage.svg?branch=master
+    :target: https://codecov.io/github/celery/kombu?branch=master
+
+.. |license| image:: https://img.shields.io/pypi/l/kombu.svg
+    :alt: BSD License
+    :target: https://opensource.org/licenses/BSD-3-Clause
+
+.. |wheel| image:: https://img.shields.io/pypi/wheel/kombu.svg
+    :alt: Kombu can be installed via wheel
+    :target: https://pypi.python.org/pypi/kombu/
+
+.. |pyversion| image:: https://img.shields.io/pypi/pyversions/kombu.svg
+    :alt: Supported Python versions.
+    :target: https://pypi.python.org/pypi/kombu/
+
+.. |pyimp| image:: https://img.shields.io/pypi/implementation/kombu.svg
+    :alt: Support Python implementations.
+    :target: https://pypi.python.org/pypi/kombu/
+--
+

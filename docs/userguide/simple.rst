@@ -21,7 +21,7 @@ a :class:`~kombu.Queue` as the name argument instead.
 In addition, the :class:`~kombu.Connection` comes with
 shortcuts to create simple queues using the current connection:
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> queue = connection.SimpleQueue('myqueue')
     >>> # ... do something with queue
@@ -30,9 +30,9 @@ shortcuts to create simple queues using the current connection:
 
 This is equivalent to:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >>> from kombu import SimpleQueue, SimpleBuffer
+    >>> from kombu.simple import SimpleQueue, SimpleBuffer
 
     >>> channel = connection.channel()
     >>> queue = SimpleBuffer(channel)

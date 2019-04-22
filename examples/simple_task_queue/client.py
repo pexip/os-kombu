@@ -1,10 +1,14 @@
+from __future__ import absolute_import, unicode_literals
+
 from kombu.pools import producers
 
 from .queues import task_exchange
 
-priority_to_routing_key = {'high': 'hipri',
-                           'mid': 'midpri',
-                           'low': 'lopri'}
+priority_to_routing_key = {
+    'high': 'hipri',
+    'mid': 'midpri',
+    'low': 'lopri',
+}
 
 
 def send_as_task(connection, fun, args=(), kwargs={}, priority='mid'):
@@ -24,5 +28,5 @@ if __name__ == '__main__':
     from .tasks import hello_task
 
     connection = Connection('amqp://guest:guest@localhost:5672//')
-    send_as_task(connection, fun=hello_task, args=('Kombu', ), kwargs={},
+    send_as_task(connection, fun=hello_task, args=('Kombu',), kwargs={},
                  priority='high')

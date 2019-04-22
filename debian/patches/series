@@ -1,2 +1,5 @@
-remove_logo.patch
-no-intersphinx.patch
+0005-Fix-compat-with-redis3.patch
+0001-Remove-image-from-remote-donation-site-privacy-issue.patch
+0002-Disable-intershpinx-mapping-for-now.patch
+0003-Remove-pytest-sugar-from-test-requirements.patch
+0004-Fix-failing-unittests-of-pyamqp-transport.patch

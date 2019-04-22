@@ -1,3 +1,7 @@
+===================================
+ Kombu - ``kombu``
+===================================
+
 .. currentmodule:: kombu
 
 .. contents::
@@ -93,9 +97,16 @@
 
     Now you can perform operations like :meth:`declare` or :meth:`delete`::
 
+        >>> # Declare exchange manually
         >>> bound_exchange.declare()
-        >>> message = bound_exchange.Message('Cure for cancer found!')
-        >>> bound_exchange.publish(message, routing_key='news.science')
+
+        >>> # Publish raw string message using low-level exchange API
+        >>> bound_exchange.publish(
+        ...     'Cure for cancer found!',
+        ...     routing_key='news.science',
+        ... )
+
+        >>> # Delete exchange.
         >>> bound_exchange.delete()
 
     .. autoclass:: Exchange
@@ -174,7 +185,6 @@
         .. automethod:: declare
         .. automethod:: register_callback
         .. automethod:: add_queue
-        .. automethod:: add_queue_from_dict
         .. automethod:: consume
         .. automethod:: cancel
         .. automethod:: cancel_by_queue

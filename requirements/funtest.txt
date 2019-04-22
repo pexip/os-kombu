@@ -4,24 +4,11 @@ redis
 # MongoDB transport
 pymongo
 
-# CouchDB transport
-couchdb
-
-# Beanstalk transport
-beanstalkc
-
 # Zookeeper transport
 kazoo
 
-# SQLAlchemy transport
-kombu-sqlalchemy
-
-# Django ORM transport
-Django
-django-kombu
-
 # SQS transport
-boto
+boto3
 
 # Qpid transport
 qpid-python>=0.26

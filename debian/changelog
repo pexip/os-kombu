@@ -1,3 +1,116 @@
+kombu (4.2.1-3) unstable; urgency=medium
+
+  [ Josue Ortega ]
+  * Team upload.
+  * Add debian/patch/0005-Fix-compat-with-redis3.patch to fix compatibility with
+    python-redis (>= 3) (Closes: #924976).
+
+ -- Michael Fladischer <fladi@debian.org>  Mon, 22 Apr 2019 21:04:43 +0200
+
+kombu (4.2.1-2) unstable; urgency=high
+
+  [ Ondřej Nový ]
+  * Use 'python3 -m sphinx' instead of sphinx-build for building docs
+
+  [ Michael Fladischer ]
+  * Apply upstream patch PR#978 to fix failing unittests of pyamqp
+    transport (Closes: #921787).
+  * Clean up pytest artifacts to allow two builds in a row.
+  * Bump Standards-Version to 4.3.0.
+
+ -- Michael Fladischer <fladi@debian.org>  Fri, 01 Mar 2019 20:03:25 +0100
+
+kombu (4.2.1-1) unstable; urgency=low
+
+  [ Ondřej Nový ]
+  * d/control: Set Vcs-* to salsa.debian.org
+  * d/watch: Use https protocol
+  * d/changelog: Remove trailing whitespaces
+  * d/tests: Use AUTOPKGTEST_TMP instead of ADTTMP
+
+  [ Michael Fladischer ]
+  * Fix default branch in debian/gbp.conf.
+  * Replace debian/upstream-signing-key.pgp with debian/upstream/signing-
+    key.asc.
+  * New upstream release.
+  * Refresh patches.
+  * Add patch to remove pytest-sugar from test requirements.
+  * Bump debhelper compatibility and version to 11.
+  * Bump Standards-Version to 4.1.4.
+  * Install examples in python-kombu-doc.
+
+ -- Michael Fladischer <fladi@debian.org>  Wed, 20 Jun 2018 10:02:04 +0200
+
+kombu (4.1.0-1) unstable; urgency=medium
+
+  * Uploading to unstable.
+  * Ran wrap-and-sort -bast to minimize diffs.
+  * Added myself as uploader.
+  * Correctly builds sphinx doc in override_dh_sphinxdoc, and understand
+    build-profiles nodoc and nocheck..
+  * Removed useless X-Python-Version: >= 2.7 and X-Python3-Version: >= 3.3
+    fields.
+  * Standards-Version is now 4.1.1.
+
+ -- Thomas Goirand <zigo@debian.org>  Sat, 04 Nov 2017 21:45:14 +0000
+
+kombu (4.1.0-1~exp1) experimental; urgency=low
+
+  * New upstream release.
+  * Remove repack script as upstream has merged the ICC profile removal.
+  * Add new upstream signing key.
+  * Add patch disabling intersphinx to prevent network requests during
+    build.
+  * Bump Standards-Version to 4.0.0.
+  * Remove Artistic and GPL-1+ licenses from d/copyright as
+    debian/repack.stub is no longer present.
+
+ -- Michael Fladischer <fladi@debian.org>  Sun, 30 Jul 2017 23:07:32 +0200
+
+kombu (4.0.2+really4.0.2+dfsg-2) experimental; urgency=medium
+
+  [ Brian May ]
+  * Add missing build depends on python-vine and python3-vine.
+    Closes: #858540.
+
+  [ Christopher Hoskin ]
+  * Change package version to 4.0.2+really4.0.2+dfsg-2 after accidently
+    uploading to unstable rather than experimental
+
+ -- Christopher Hoskin <mans0954@debian.org>  Fri, 31 Mar 2017 09:12:12 +0100
+
+kombu (4.0.2+dfsg-1) experimental; urgency=medium
+
+  * Refresh patches after git-dpm to gbp pq conversion
+  * Import new upstream release (4.0.2)
+  * Remove redundant patches
+  * Update build dependencies
+  * Add myself to Uploaders
+  * Update copyright file
+  * Add patch to remove image from remote donation site (privacy issue)
+  * Set http(s) proxys to localhost whilst building docs
+  * Remove nose from build dependencies (pytest now used)
+  * Remove nose from CI tests
+
+ -- Christopher Hoskin <mans0954@debian.org>  Tue, 21 Mar 2017 21:51:21 +0000
+
+kombu (4.0.2+really3.0.35+dfsg-2) unstable; urgency=medium
+
+  * Revert mistaken upload of 4.0.2 to unstable instead of experimental
+
+ -- Christopher Hoskin <mans0954@debian.org>  Fri, 24 Mar 2017 20:27:37 +0000
+
+kombu (3.0.35+dfsg-2) unstable; urgency=medium
+
+  * Team upload.
+  * Fix "Non-Free ICC profiles in images" add repack scripts to remove
+    (Closes: #855502)
+  * Remove all egg-info in debian/clean
+  * Add Artistic and GPL to debian/copyright for repack.stub
+  * Bump standards version from 3.9.7 to 3.9.8 (no change required)
+
+ -- Christopher Hoskin <mans0954@debian.org>  Sun, 19 Feb 2017 11:37:19 +0000
+
 kombu (3.0.35-1.1) unstable; urgency=medium
 
   * Non-maintainer upload.

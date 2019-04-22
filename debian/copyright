@@ -1,54 +1,52 @@
-Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: kombu
 Upstream-Contact: Ask Solem <askh@opera.com>
 Source: http://pypi.python.org/pypi/kombu/
 
 Files: *
-Copyright: 2009-2012, Ask Solem and contributors.
-License: BSD-solem
+Copyright: 2009-2012, Ask Solem <ask@celeryproject.org> and contributors
+ 2015-2016 Ask Solem <ask@celeryproject.org> & contributors
+ 2012-2014 GoPivotal Inc & contributors
+License: BSD-3-clause
 
 Files: kombu/utils/functional.py
 Copyright: 2001-2007, Python Software
 License: PSF-2
 
-Files: docs/_theme/celery/static/celery.css_t
-Copyright: 2010, Armin Ronacher
-License: BSD-solem
-
-Files: kombu/transport/beanstalk.py
-Copyright: 2010-2011, David Ziegler.
-License: BSD-solem
-
 Files: kombu/transport/mongodb.py
-Copyright: 2010-2011, Flavio Percoco Premoli
-License: BSD-solem
+Copyright: 2010-2013, Flavio Percoco Premoli
+License: BSD-3-clause
 
-Files: kombu/transport/couchdb.py
-Copyright: 2010-2011, David Clymer <david@zettazebra.com>
-License: BSD-solem
+Files: ./kombu/transport/zookeeper.py
+Copyright: 2010-2013 Mahendra M.
+License: BSD-3-clause
+
 
 Files: debian/*
 Copyright: 2012-2015, Michael Fladischer <fladi@debian.org>
-License: BSD-solem
+ 2017 Christopher Hoskin <mans0954@debian.org>
+License: BSD-3-clause
 
-License: BSD-solem
+License: BSD-3-clause
+ Copyright (c) 2015-2016 Ask Solem & contributors.  All rights reserved.
+ Copyright (c) 2012-2014 GoPivotal Inc & contributors.  All rights reserved.
+ Copyright (c) 2009-2012, Ask Solem & contributors.  All rights reserved.
+ .
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
- .
-     * Redistributions of source code must retain the above copyright notice,
-       this list of conditions and the following disclaimer.
-     * Redistributions in binary form must reproduce the above copyright
-       notice, this list of conditions and the following disclaimer in the
-       documentation and/or other materials provided with the distribution.
- .
- Neither the name of Ask Solem nor the names of its contributors may be used
- to endorse or promote products derived from this software without specific
- prior written permission.
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of Ask Solem nor the
+      names of its contributors may be used to endorse or promote products
+      derived from this software without specific prior written permission.
  .
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS
+ PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL Ask Solem OR CONTRIBUTORS
  BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS

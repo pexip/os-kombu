@@ -1,5 +1,5 @@
 ==========================================================
- Compat. utilities - kombu.utils.compat
+ Python Compatibility - ``kombu.utils.compat``
 ==========================================================
 
 .. contents::

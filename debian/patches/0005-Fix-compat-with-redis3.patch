@@ -1,0 +1,41 @@
+Description: Fix compat with redis >= 3
+Author: Josue Ortega <josue@debian.org>
+Last-Update: 2019-04-15
+
+--- a/kombu/transport/redis.py
++++ b/kombu/transport/redis.py
+@@ -145,8 +145,14 @@
+     def append(self, message, delivery_tag):
+         delivery = message.delivery_info
+         EX, RK = delivery['exchange'], delivery['routing_key']
++
++        # Redis-py changed the format of zadd args in v3.0.0
++        zadd_args = [{delivery_tag: time()}]
++        if redis.VERSION[0] < 3:
++            zadd_args = [time(), delivery_tag]
++
+         with self.pipe_or_acquire() as pipe:
+-            pipe.zadd(self.unacked_index_key, time(), delivery_tag) \
++            pipe.zadd(self.unacked_index_key, *zadd_args) \
+                 .hset(self.unacked_key, delivery_tag,
+                       dumps([message._raw, EX, RK])) \
+                 .execute()
+--- a/t/unit/transport/test_redis.py
++++ b/t/unit/transport/test_redis.py
+@@ -75,8 +75,14 @@
+     def sadd(self, key, member, *args):
+         self.sets[key].add(member)
+ 
+-    def zadd(self, key, score1, member1, *args):
+-        self.sets[key].add(member1)
++    def zadd(self, key, *args):
++        if redis.redis.VERSION[0] >= 3:
++            (mapping,) = args
++            for item in mapping:
++                self.sets[key].add(item)
++        else:
++            (score1, member1) = args
++            self.sets[key].add(member1)
+ 
+     def smembers(self, key):
+         return self.sets.get(key, set())
