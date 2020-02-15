@@ -1,6 +1,6 @@
-====================================
- kombu.transport.sqlalchemy
-====================================
+===========================================================
+ SQLAlchemy Transport Model - kombu.transport.sqlalchemy
+===========================================================
 
 
 .. currentmodule:: kombu.transport.sqlalchemy
