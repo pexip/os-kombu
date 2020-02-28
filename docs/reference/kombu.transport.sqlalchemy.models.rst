@@ -1,3 +1,8 @@
+=====================================================================
+ SQLAlchemy Transport Model - ``kombu.transport.sqlalchemy.models``
+=====================================================================
+
+
 .. currentmodule:: kombu.transport.sqlalchemy.models
 
 .. automodule:: kombu.transport.sqlalchemy.models

@@ -1,6 +1,7 @@
-boto
-coverage>=3.0
-coveralls
+pytest-cov
+codecov
 redis
 PyYAML
-msgpack-python>0.2.0  # 0.2.0 dropped 2.5 support
+msgpack-python>0.2.0
+-r extras/sqs.txt
+sqlalchemy

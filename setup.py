@@ -5,13 +5,13 @@ import re
 import sys
 import codecs
 
+import setuptools
+import setuptools.command.test
+
 from distutils.command.install import INSTALL_SCHEMES
 
-extra = {}
-PY3 = sys.version_info[0] == 3
-
-if sys.version_info < (2, 6):
-    raise Exception('Kombu requires Python 2.6 or higher.')
+if sys.version_info < (2, 7):
+    raise Exception('Kombu 4.0 requires Python 2.7 or higher.')
 
 try:
     from setuptools import setup
@@ -20,30 +20,19 @@ except ImportError:
 
 # -- Parse meta
 re_meta = re.compile(r'__(\w+?)__\s*=\s*(.*)')
-re_vers = re.compile(r'VERSION\s*=.*?\((.*?)\)')
 re_doc = re.compile(r'^"""(.+?)"""')
-
-
-def rq(s):
-    return s.strip("\"'")
 
 
 def add_default(m):
     attr_name, attr_value = m.groups()
-    return ((attr_name, rq(attr_value)), )
-
-
-def add_version(m):
-    v = list(map(rq, m.groups()[0].split(', ')))
-    return (('VERSION', '.'.join(v[0:3]) + ''.join(v[3:])), )
+    return ((attr_name, attr_value.strip("\"'")),)
 
 
 def add_doc(m):
-    return (('doc', m.groups()[0]), )
+    return (('doc', m.groups()[0]),)
 
-pats = {re_meta: add_default,
-        re_vers: add_version,
-        re_doc: add_doc}
+
+pats = {re_meta: add_default, re_doc: add_doc}
 here = os.path.abspath(os.path.dirname(__file__))
 meta_fh = open(os.path.join(here, 'kombu/__init__.py'))
 try:
@@ -58,12 +47,6 @@ try:
 finally:
     meta_fh.close()
 # --
-
-packages, data_files = [], []
-root_dir = os.path.dirname(__file__)
-if root_dir != '':
-    os.chdir(root_dir)
-src_dir = 'kombu'
 
 
 def fullsplit(path, result=None):
@@ -80,23 +63,10 @@ def fullsplit(path, result=None):
 for scheme in list(INSTALL_SCHEMES.values()):
     scheme['data'] = scheme['purelib']
 
-for dirpath, dirnames, filenames in os.walk(src_dir):
-    # Ignore dirnames that start with '.'
-    for i, dirname in enumerate(dirnames):
-        if dirname.startswith('.'):
-            del dirnames[i]
-    for filename in filenames:
-        if filename.endswith('.py'):
-            packages.append('.'.join(fullsplit(dirpath)))
-        else:
-            data_files.append(
-                [dirpath, [os.path.join(dirpath, f) for f in filenames]],
-            )
-
 if os.path.exists('README.rst'):
     long_description = codecs.open('README.rst', 'r', 'utf-8').read()
 else:
-    long_description = 'See http://pypi.python.org/pypi/kombu'
+    long_description = 'See https://pypi.python.org/pypi/kombu'
 
 # -*- Installation Requires -*-
 py_version = sys.version_info
@@ -115,51 +85,54 @@ def reqs(*f):
                 os.path.join(os.getcwd(), 'requirements', *f)).readlines()
         ) if r]
 
-install_requires = reqs('default.txt')
-if py_version[0:2] == (2, 6):
-    install_requires.extend(reqs('py26.txt'))
-
-# -*- Tests Requires -*-
-
 
 def extras(*p):
     return reqs('extras', *p)
 
-tests_require = reqs('test3.txt' if PY3 else 'test.txt')
 
-extras_require = extra['extras_require'] = {
-    'msgpack': extras('msgpack.txt'),
-    'yaml': extras('yaml.txt'),
-    'redis': extras('redis.txt'),
-    'mongodb': extras('mongodb.txt'),
-    'sqs': extras('sqs.txt'),
-    'couchdb': extras('couchdb.txt'),
-    'beanstalk': extras('beanstalk.txt'),
-    'zookeeper': extras('zookeeper.txt'),
-    'zeromq': extras('zeromq.txt'),
-    'sqlalchemy': extras('sqlalchemy.txt'),
-    'librabbitmq': extras('librabbitmq.txt'),
-    'pyro': extras('pyro.txt'),
-    'slmq': extras('slmq.txt'),
-    'qpid': extras('qpid.txt'),
-}
+class pytest(setuptools.command.test.test):
+    user_options = [('pytest-args=', 'a', 'Arguments to pass to py.test')]
 
-extras_require[':python_version=="2.6"'] = reqs('py26.txt')
+    def initialize_options(self):
+        setuptools.command.test.test.initialize_options(self)
+        self.pytest_args = []
+
+    def run_tests(self):
+        import pytest
+        sys.exit(pytest.main(self.pytest_args))
+
 
 setup(
     name='kombu',
-    version=meta['VERSION'],
+    packages=setuptools.find_packages(exclude=['t', 't.*']),
+    version=meta['version'],
     description=meta['doc'],
+    long_description=long_description,
+    keywords='messaging message amqp rabbitmq redis actor producer consumer',
     author=meta['author'],
     author_email=meta['contact'],
     url=meta['homepage'],
     platforms=['any'],
-    packages=packages,
-    data_files=data_files,
     zip_safe=False,
-    test_suite='nose.collector',
-    install_requires=install_requires,
-    tests_require=tests_require,
+    license='BSD',
+    cmdclass={'test': pytest},
+    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
+    install_requires=reqs('default.txt'),
+    tests_require=reqs('test.txt'),
+    extras_require={
+        'msgpack': extras('msgpack.txt'),
+        'yaml': extras('yaml.txt'),
+        'redis': extras('redis.txt'),
+        'mongodb': extras('mongodb.txt'),
+        'sqs': extras('sqs.txt'),
+        'zookeeper': extras('zookeeper.txt'),
+        'sqlalchemy': extras('sqlalchemy.txt'),
+        'librabbitmq': extras('librabbitmq.txt'),
+        'pyro': extras('pyro.txt'),
+        'slmq': extras('slmq.txt'),
+        'qpid': extras('qpid.txt'),
+        'consul': extras('consul.txt'),
+    },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: BSD License',
@@ -167,9 +140,9 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
@@ -180,5 +153,4 @@ setup(
         'Topic :: System :: Networking',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    long_description=long_description,
-    **extra)
+)

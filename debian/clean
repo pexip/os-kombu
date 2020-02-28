@@ -1,2 +1,4 @@
-kombu.egg-info/SOURCES.txt
-kombu.egg-info/requires.txt
+kombu.egg-info/
+.pytest_cache/README.md
+.pytest_cache/v/cache/nodeids
+.pytest_cache/v/cache/stepwise

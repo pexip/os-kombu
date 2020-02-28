@@ -1,11 +1,12 @@
 =========
  AUTHORS
 =========
-:order: sorted
+:order: sorted (`.,$!sort -uf`)
 
 Adam Gaca <adam.gaca@oke.pl>
 Adam Nelson <adam@varud.com>
 Adam Wentz
+Alan Justino <alan.justino@yahoo.com.br>
 Alex Koshelev <daevaorn@gmail.com>
 Alexandre Bourget <alexandre.bourget@savoirfairelinux.com>
 Anastasis Andronidis <anastasis90@yahoo.gr>
@@ -13,6 +14,7 @@ Andrew Watts
 Andrey Antukh <niwi@niwi.be>
 Andrii Kostenko <andrey@kostenko.name>
 Andy McCurdy <andy@andymccurdy.com>
+Anthony Lukach <anthonylukach@gmail.com>
 Antoine Legrand <antoine.legrand@smartjog.com>
 Anton Gyllenberg <anton@iki.fi>
 Ask Solem <ask@celeryproject.org>
@@ -21,6 +23,7 @@ Bobby Beever <bobby.beever@yahoo.com>
 Brian Bernstein
 Brian Bouterse <bmbouter@redhat.com>
 C Anthony Risinger <anthony+corvisa.com@xtfx.me>
+Chris Erway <cce@appneta.com>
 Christophe Chauvet <christophe.chauvet@gmail.com>
 Christopher Duryee <cduryee@redhat.com>
 Christopher Grebs <cg@webshox.org>
@@ -35,12 +38,14 @@ David Gelvin <david.gelvin@gmail.com>
 David Strauss <david@davidstrauss.net>
 David Ziegler <david.ziegler@gmail.com>
 Dhananjay Nene <dhananjay.nene@gmail.com>
+Dima Kurguzov <koorgoo@gmail.com>
 Dmitry Malinovsky <dmalinovsky@thumbtack.net>
 Dustin J. Mitchell <dustin@mozilla.com>
+Emmanuel Cazenave <contact@emcaz.fr>
 Ephemera <obliviscence+git@gmail.com>
 Eric Reynolds <ereynolds@opendns.com>
-Eric Wang <eric1990@gmail.com>
 Fabrice Rabaute <fabrice@expa.com>
+Federico Ficarelli <federico.ficarelli@gmail.com>
 Felix Schwarz <felix.schwarz@oss.schwarz.eu>
 Felix Yan <felixonmars@archlinux.org>
 Fernando Jorge Mota <f.j.mota13@gmail.com>
@@ -61,7 +66,6 @@ James Turk <james.p.turk@gmail.com>
 Jason Cater <jason@ncsfulfillment.com>
 Jasper Bryant-Greene <jbg@rf.net.nz>
 Jeff Balogh <me@jeffbalogh.org>
-Jeff Ortel <jortel@redhat.com>
 Jesper Thomschütz <jesper@jespersaur.com>
 Jesse Dhillon <jesse@deva0.net>
 John Shuping <jshuping@acm.org>
@@ -70,12 +74,16 @@ John Watson <john@disqus.com>
 Jonathan Halcrow <jonathan.halcrow@gmail.com>
 Joseph Crosland <jcrosland@flumotion.com>
 Joshua Harlow <harlowja@gmail.com>
+Juan Carlos Ferrer <juan.carlos@micronixsolutions.com>
 Kai Groner <kai@gronr.com>
 Keith Fitzgerald <ghostrocket@me.com>
 Kevin McCarthy <me@kevinmccarthy.org>
 Kevin McDonald <k3vinmcdonald@gmail.com>
 Latitia M. Haskins <lhaskins@jetsonsys.com>
 Len Buckens <buckens.len@gmail.com>
+Lorenzo Mancini <lmancini@develer.com>
+Luyun Xie <2304310@qq.com>
+Mads Jensen <https://github.com/atombrella>
 Mahendra M <Mahendra_M@infosys.com>
 Marcin Lulek (ergo) <info@webreactor.eu>
 Mark Lavin <mlavin@caktusgroup.com>
@@ -86,6 +94,7 @@ mdk <luc.mdk@gmail.com>
 Mher Movsisyan <mher.movsisyan@gmail.com>
 Michael Barrett <mb@eventbrite.com>
 Michael Nelson <michaeln@telesign.com>
+Nathan Van Gheem <vangheem@gmail.com>
 Nitzan Miron <bug.assembla@bugbug.me>
 Noah Kantrowitz <noah@coderanger.net>
 Ollie Walsh <ollie.walsh@geemail.kom>
@@ -100,7 +109,9 @@ Rafael Duran Castaneda <rafadurancastaneda@gmail.com>
 Rafal Malinowski <malinowski@red-sky.pl>
 Ralf Nyren <ralf-github@nyren.net>
 Randy Barlow <rbarlow@redhat.com>
+Raphael Michel <mail@raphaelmichel.de>
 Rob Ottaway <robottaway@gmail.com>
+Robert Kopaczewski <rk@23doors.com>
 Roger Hu <rhu@hearsaycorp.com>
 Rumyana Neykova <rumi.neykova@gmail.com>
 Rune Halvorsen <runeh@opera.com>
@@ -111,12 +122,14 @@ Scott Lyons <scottalyons@gmail.com>
 Sean Bleier <sebleier@gmail.com>
 Sean Creeley <sean.creeley@gmail.com>
 Seb Insua <sebastian.insua@saffrondigital.com>
+Sergey Azovskov <last-g@yandex-team.ru>
 Sergey Tikhonov <zimbler@gmail.com>
 Shane Caraveo <shane@caraveo.com>
 Steeve Morin <steeve.morin@gmail.com>
 Stefan Eletzhofer <se@nexiles.de>
 Stephan Jaekel <steph@rdev.info>
 Stephen Day <stevvooe@gmail.com>
+Stuart Axon <stuaxo2@yahoo.com>
 Tareque Hossain
 Thomas Johansson <prencher@prencher.dk>
 Tobias Schottdorf <tobias@goshippo.com>
@@ -128,5 +141,7 @@ Victor Garcia <victor@tuenti.com>
 Viet Hung Nguyen <hvnsweeting@gmail.com>
 Vince Gonzalez <vince.gonzalez@gmail.com>
 Vincent Driessen <vincent@datafox.nl>
+Wido den Hollander <wido@widodh.nl>
 Zach Smith <zmsmith27@gmail.com>
 Zhao Xiaohong <mrluanma@gmail.com>
+Arcadiy Ivanov <arcadiy@ivanov.biz>
