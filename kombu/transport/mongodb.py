@@ -3,9 +3,9 @@
 :copyright: (c) 2010 - 2013 by Flavio Percoco Premoli.
 :license: BSD, see LICENSE for more details.
 """
-from __future__ import absolute_import, unicode_literals
 
 import datetime
+from queue import Empty
 
 import pymongo
 from pymongo import errors
@@ -13,13 +13,14 @@ from pymongo import MongoClient, uri_parser
 from pymongo.cursor import CursorType
 
 from kombu.exceptions import VersionMismatch
-from kombu.five import Empty, string_t
 from kombu.utils.compat import _detect_environment
 from kombu.utils.encoding import bytes_to_str
 from kombu.utils.json import loads, dumps
 from kombu.utils.objects import cached_property
 
 from . import virtual
+from .base import to_rabbitmq_queue_arguments
+
 
 E_SERVER_VERSION = """\
 Kombu requires MongoDB version 1.3+ (server is {0})\
@@ -30,7 +31,7 @@ Kombu requires MongoDB version 2.2+ (server is {0}) for TTL indexes support\
 """
 
 
-class BroadcastCursor(object):
+class BroadcastCursor:
     """Cursor for broadcast queues."""
 
     def __init__(self, cursor):
@@ -110,7 +111,7 @@ class Channel(virtual.Channel):
     ))
 
     def __init__(self, *vargs, **kwargs):
-        super(Channel, self).__init__(*vargs, **kwargs)
+        super().__init__(*vargs, **kwargs)
 
         self._broadcast_cursors = {}
 
@@ -153,7 +154,7 @@ class Channel(virtual.Channel):
         # Do not calculate actual queue size if requested
         # for performance considerations
         if not self.calc_queue_size:
-            return super(Channel, self)._size(queue)
+            return super()._size(queue)
 
         if queue in self._fanout_queues:
             return self._get_broadcast_cursor(queue).get_size()
@@ -223,7 +224,7 @@ class Channel(virtual.Channel):
         if self.ttl:
             self.queues.remove({'_id': queue})
 
-        super(Channel, self).queue_delete(queue, **kwargs)
+        super().queue_delete(queue, **kwargs)
 
         if queue in self._fanout_queues:
             try:
@@ -285,6 +286,9 @@ class Channel(virtual.Channel):
                 modes = pymongo.read_preferences._MONGOS_MODES
                 options['readpreference'] = modes[options['readpreference']]
         return options
+
+    def prepare_queue_arguments(self, arguments, **kwargs):
+        return to_rabbitmq_queue_arguments(arguments, **kwargs)
 
     def _open(self, scheme='mongodb://'):
         hostname, dbname, conf = self._parse_uri(scheme=scheme)
@@ -402,7 +406,7 @@ class Channel(virtual.Channel):
         Note:
             `queue` must be either queue name or options itself.
         """
-        if isinstance(queue, string_t):
+        if isinstance(queue, str):
             doc = self.queues.find_one({'_id': queue})
 
             if not doc:
@@ -427,11 +431,9 @@ class Channel(virtual.Channel):
             return
 
         self.routing.update(
-            {'queue': queue}, {'$set': {'expire_at': expire_at}},
-            multiple=True)
+            {'queue': queue}, {'$set': {'expire_at': expire_at}}, multi=True)
         self.queues.update(
-            {'_id': queue}, {'$set': {'expire_at': expire_at}},
-            multiple=True)
+            {'_id': queue}, {'$set': {'expire_at': expire_at}}, multi=True)
 
     def get_now(self):
         """Return current time in UTC."""

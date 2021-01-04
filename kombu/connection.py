@@ -1,31 +1,34 @@
 """Client (Connection)."""
-from __future__ import absolute_import, unicode_literals
 
 import os
 import socket
-import sys
 
 from collections import OrderedDict
 from contextlib import contextmanager
 from itertools import count, cycle
 from operator import itemgetter
 
+
+try:
+    from ssl import CERT_NONE
+    ssl_available = True
+except ImportError:  # pragma: no cover
+    CERT_NONE = None
+    ssl_available = False
+
 # jython breaks on relative import for .exceptions for some reason
 # (Issue #112)
 from kombu import exceptions
 
-from .five import (
-    bytes_if_py2, python_2_unicode_compatible, reraise, string_t, text_t,
-)
 from .log import get_logger
 from .resource import Resource
 from .transport import get_transport_cls, supports_librabbitmq
 from .utils.collections import HashedSeq
 from .utils.functional import dictfilter, lazy, retry_over_time, shufflecycle
 from .utils.objects import cached_property
-from .utils.url import as_url, parse_url, quote, urlparse
+from .utils.url import as_url, parse_url, quote, urlparse, maybe_sanitize_url
 
-__all__ = ['Connection', 'ConnectionPool', 'ChannelPool']
+__all__ = ('Connection', 'ConnectionPool', 'ChannelPool')
 
 logger = get_logger(__name__)
 
@@ -45,8 +48,7 @@ _log_connection = os.environ.get('KOMBU_LOG_CONNECTION', False)
 _log_channel = os.environ.get('KOMBU_LOG_CHANNEL', False)
 
 
-@python_2_unicode_compatible
-class Connection(object):
+class Connection:
     """A connection to the broker.
 
     Example:
@@ -162,19 +164,21 @@ class Connection(object):
             'login_method': login_method, 'heartbeat': heartbeat
         }
 
-        if hostname and not isinstance(hostname, string_t):
+        if hostname and not isinstance(hostname, str):
             alt.extend(hostname)
             hostname = alt[0]
-        if hostname and '://' in hostname:
+            params.update(hostname=hostname)
+        if hostname:
             if ';' in hostname:
-                alt.extend(hostname.split(';'))
+                alt = hostname.split(';') + alt
                 hostname = alt[0]
-            if '+' in hostname[:hostname.index('://')]:
+                params.update(hostname=hostname)
+            if '://' in hostname and '+' in hostname[:hostname.index('://')]:
                 # e.g. sqla+mysql://root:masterkey@localhost/
                 params['transport'], params['hostname'] = \
                     hostname.split('+', 1)
                 self.uri_prefix = params['transport']
-            else:
+            elif '://' in hostname:
                 transport = transport or urlparse(hostname).scheme
                 if not get_transport_cls(transport).can_parse_url:
                     # we must parse the URL
@@ -212,16 +216,22 @@ class Connection(object):
 
         self.declared_entities = set()
 
-    def switch(self, url):
-        """Switch connection parameters to use a new URL.
+    def switch(self, conn_str):
+        """Switch connection parameters to use a new URL or hostname.
 
         Note:
             Does not reconnect!
+
+        Arguments:
+            conn_str (str): either a hostname or URL.
         """
         self.close()
         self.declared_entities.clear()
         self._closed = False
-        self._init_params(**dict(self._initial_params, **parse_url(url)))
+        conn_params = (
+            parse_url(conn_str) if "://" in conn_str else {"hostname": conn_str}  # noqa
+        )
+        self._init_params(**dict(self._initial_params, **conn_params))
 
     def maybe_switch_next(self):
         """Switch to next URL given by the current failover strategy."""
@@ -234,6 +244,12 @@ class Connection(object):
         transport = transport or 'amqp'
         if transport == 'amqp' and supports_librabbitmq():
             transport = 'librabbitmq'
+        if transport == 'rediss' and ssl_available and not ssl:
+            logger.warning(
+                'Secure redis scheme specified (rediss) with no ssl '
+                'options, defaulting to insecure SSL behaviour.'
+            )
+            ssl = {'ssl_cert_reqs': CERT_NONE}
         self.hostname = hostname
         self.userid = userid
         self.password = password
@@ -252,13 +268,14 @@ class Connection(object):
     def _debug(self, msg, *args, **kwargs):
         if self._logger:  # pragma: no cover
             fmt = '[Kombu connection:{id:#x}] {msg}'
-            logger.debug(fmt.format(id=id(self), msg=text_t(msg)),
+            logger.debug(fmt.format(id=id(self), msg=str(msg)),
                          *args, **kwargs)
 
     def connect(self):
         """Establish connection to server immediately."""
-        self._closed = False
-        return self.connection
+        return self._ensure_connection(
+            max_retries=1, reraise_as_library_errors=False
+        )
 
     def channel(self):
         """Create and return a new channel."""
@@ -358,9 +375,20 @@ class Connection(object):
         self._close()
     close = release
 
-    def ensure_connection(self, errback=None, max_retries=None,
-                          interval_start=2, interval_step=2, interval_max=30,
-                          callback=None, reraise_as_library_errors=True):
+    def ensure_connection(self, *args, **kwargs):
+        """Public interface of _ensure_connection for retro-compatibility.
+
+        Returns kombu.Connection instance.
+        """
+        self._ensure_connection(*args, **kwargs)
+        return self
+
+    def _ensure_connection(
+        self, errback=None, max_retries=None,
+        interval_start=2, interval_step=2, interval_max=30,
+        callback=None, reraise_as_library_errors=True,
+        timeout=None
+    ):
         """Ensure we have a connection to the server.
 
         If not retry establishing the connection with the settings
@@ -384,7 +412,12 @@ class Connection(object):
                 each retry.
             callback (Callable): Optional callback that is called for every
                 internal iteration (1 s).
+            timeout (int): Maximum amount of time in seconds to spend
+                waiting for connection
         """
+        if self.connected:
+            return self._connection
+
         def on_error(exc, intervals, retries, interval=0):
             round = self.completes_cycle(retries)
             if round:
@@ -399,11 +432,12 @@ class Connection(object):
         if not reraise_as_library_errors:
             ctx = self._dummy_context
         with ctx():
-            retry_over_time(self.connect, self.recoverable_connection_errors,
-                            (), {}, on_error, max_retries,
-                            interval_start, interval_step, interval_max,
-                            callback)
-        return self
+            return retry_over_time(
+                self._connection_factory, self.recoverable_connection_errors,
+                (), {}, on_error, max_retries,
+                interval_start, interval_step, interval_max,
+                callback, timeout=timeout
+            )
 
     @contextmanager
     def _reraise_as_library_errors(
@@ -415,11 +449,9 @@ class Connection(object):
         except (ConnectionError, ChannelError):
             raise
         except self.recoverable_connection_errors as exc:
-            reraise(ConnectionError, ConnectionError(text_t(exc)),
-                    sys.exc_info()[2])
+            raise ConnectionError(str(exc)) from exc
         except self.recoverable_channel_errors as exc:
-            reraise(ChannelError, ChannelError(text_t(exc)),
-                    sys.exc_info()[2])
+            raise ChannelError(str(exc)) from exc
 
     @contextmanager
     def _dummy_context(self):
@@ -435,10 +467,6 @@ class Connection(object):
             self.maybe_close_channel(self._default_channel)
             self._default_channel = None
 
-    def _default_ensure_callback(self, exc, interval):
-        logger.error("Ensure: Operation error: %r. Retry in %ss",
-                     exc, interval, exc_info=True)
-
     def ensure(self, obj, fun, errback=None, max_retries=None,
                interval_start=1, interval_step=1, interval_max=1,
                on_revive=None):
@@ -450,6 +478,7 @@ class Connection(object):
         the function.
 
         Arguments:
+            obj: The object to ensure an action on.
             fun (Callable): Method to apply.
 
             errback (Callable): Optional callback called each time the
@@ -467,6 +496,8 @@ class Connection(object):
                 for each retry.
             interval_max (float): Maximum number of seconds to sleep between
                 each retry.
+            on_revive (Callable): Optional callback called whenever
+                revival completes successfully
 
         Examples:
             >>> from kombu import Connection, Producer
@@ -508,7 +539,7 @@ class Connection(object):
                         remaining_retries = None
                         if max_retries is not None:
                             remaining_retries = max(max_retries - retries, 1)
-                        self.ensure_connection(
+                        self._ensure_connection(
                             errback,
                             remaining_retries,
                             interval_start, interval_step, interval_max,
@@ -525,7 +556,7 @@ class Connection(object):
                         self._debug('ensure channel error: %r',
                                     exc, exc_info=1)
                         errback and errback(exc, 0)
-        _ensured.__name__ = bytes_if_py2('{0}(ensured)'.format(fun.__name__))
+        _ensured.__name__ = f'{fun.__name__}(ensured)'
         _ensured.__doc__ = fun.__doc__
         _ensured.__module__ = fun.__module__
         return _ensured
@@ -553,7 +584,7 @@ class Connection(object):
         """
         channels = [channel]
 
-        class Revival(object):
+        class Revival:
             __name__ = getattr(fun, '__name__', None)
             __module__ = getattr(fun, '__module__', None)
             __doc__ = getattr(fun, '__doc__', None)
@@ -578,7 +609,7 @@ class Connection(object):
     def get_transport_cls(self):
         """Get the currently used transport class."""
         transport_cls = self.transport_cls
-        if not transport_cls or isinstance(transport_cls, string_t):
+        if not transport_cls or isinstance(transport_cls, str):
             transport_cls = get_transport_cls(transport_cls)
         return transport_cls
 
@@ -598,7 +629,7 @@ class Connection(object):
 
         hostname = self.hostname or D.get('hostname')
         if self.uri_prefix:
-            hostname = '%s+%s' % (self.uri_prefix, hostname)
+            hostname = f'{self.uri_prefix}+{hostname}'
 
         info = (
             ('hostname', hostname),
@@ -634,11 +665,17 @@ class Connection(object):
         """Convert connection parameters to URL form."""
         hostname = self.hostname or 'localhost'
         if self.transport.can_parse_url:
+            connection_as_uri = self.hostname
             if self.uri_prefix:
-                return '%s+%s' % (self.uri_prefix, hostname)
-            return self.hostname
+                connection_as_uri = f'{self.uri_prefix}+{hostname}'
+            if not include_password:
+                connection_as_uri = maybe_sanitize_url(connection_as_uri)
+            return connection_as_uri
         if self.uri_prefix:
-            return '%s+%s' % (self.uri_prefix, hostname)
+            connection_as_uri = f'{self.uri_prefix}+{hostname}'
+            if not include_password:
+                connection_as_uri = maybe_sanitize_url(connection_as_uri)
+            return connection_as_uri
         fields = self.info()
         port, userid, password, vhost, transport = getfields(fields)
 
@@ -710,6 +747,7 @@ class Connection(object):
         return Consumer(channel or self, queues, *args, **kwargs)
 
     def SimpleQueue(self, name, no_ack=None, queue_opts=None,
+                    queue_args=None,
                     exchange_opts=None, channel=None, **kwargs):
         """Simple persistent queue API.
 
@@ -725,6 +763,9 @@ class Connection(object):
             no_ack (bool): Disable acknowledgments. Default is false.
             queue_opts (Dict): Additional keyword arguments passed to the
                 constructor of the automatically created :class:`~kombu.Queue`.
+            queue_args (Dict): Additional keyword arguments passed to the
+                constructor of the automatically created :class:`~kombu.Queue`
+                for setting implementation extensions (e.g., in RabbitMQ).
             exchange_opts (Dict): Additional keyword arguments passed to the
                 constructor of the automatically created
                 :class:`~kombu.Exchange`.
@@ -733,9 +774,11 @@ class Connection(object):
         """
         from .simple import SimpleQueue
         return SimpleQueue(channel or self, name, no_ack, queue_opts,
+                           queue_args,
                            exchange_opts, **kwargs)
 
     def SimpleBuffer(self, name, no_ack=None, queue_opts=None,
+                     queue_args=None,
                      exchange_opts=None, channel=None, **kwargs):
         """Simple ephemeral queue API.
 
@@ -750,6 +793,7 @@ class Connection(object):
         """
         from .simple import SimpleBuffer
         return SimpleBuffer(channel or self, name, no_ack, queue_opts,
+                            queue_args,
                             exchange_opts, **kwargs)
 
     def _establish_connection(self):
@@ -762,7 +806,7 @@ class Connection(object):
         return exchange_type in self.transport.implements.exchange_type
 
     def __repr__(self):
-        return '<Connection: {0} at {1:#x}>'.format(self.as_uri(), id(self))
+        return '<Connection: {} at {:#x}>'.format(self.as_uri(), id(self))
 
     def __copy__(self):
         return self.clone()
@@ -779,6 +823,20 @@ class Connection(object):
     @property
     def qos_semantics_matches_spec(self):
         return self.transport.qos_semantics_matches_spec(self.connection)
+
+    def _extract_failover_opts(self):
+        conn_opts = {}
+        transport_opts = self.transport_options
+        if transport_opts:
+            if 'max_retries' in transport_opts:
+                conn_opts['max_retries'] = transport_opts['max_retries']
+            if 'interval_start' in transport_opts:
+                conn_opts['interval_start'] = transport_opts['interval_start']
+            if 'interval_step' in transport_opts:
+                conn_opts['interval_step'] = transport_opts['interval_step']
+            if 'interval_max' in transport_opts:
+                conn_opts['interval_max'] = transport_opts['interval_max']
+        return conn_opts
 
     @property
     def connected(self):
@@ -797,11 +855,17 @@ class Connection(object):
         """
         if not self._closed:
             if not self.connected:
-                self.declared_entities.clear()
-                self._default_channel = None
-                self._connection = self._establish_connection()
-                self._closed = False
+                return self._ensure_connection(
+                    max_retries=1, reraise_as_library_errors=False
+                )
             return self._connection
+
+    def _connection_factory(self):
+        self.declared_entities.clear()
+        self._default_channel = None
+        self._connection = self._establish_connection()
+        self._closed = False
+        return self._connection
 
     @property
     def default_channel(self):
@@ -815,20 +879,10 @@ class Connection(object):
             a connection is passed instead of a channel, to functions that
             require a channel.
         """
-        conn_opts = {}
-        transport_opts = self.transport_options
-        if transport_opts:
-            if 'max_retries' in transport_opts:
-                conn_opts['max_retries'] = transport_opts['max_retries']
-            if 'interval_start' in transport_opts:
-                conn_opts['interval_start'] = transport_opts['interval_start']
-            if 'interval_step' in transport_opts:
-                conn_opts['interval_step'] = transport_opts['interval_step']
-            if 'interval_max' in transport_opts:
-                conn_opts['interval_max'] = transport_opts['interval_max']
-
         # make sure we're still connected, and if not refresh.
-        self.ensure_connection(**conn_opts)
+        conn_opts = self._extract_failover_opts()
+        self._ensure_connection(**conn_opts)
+
         if self._default_channel is None:
             self._default_channel = self.channel()
         return self._default_channel
@@ -903,6 +957,8 @@ class Connection(object):
     @property
     def is_evented(self):
         return self.transport.implements.asynchronous
+
+
 BrokerConnection = Connection  # noqa: E305
 
 
@@ -914,7 +970,7 @@ class ConnectionPool(Resource):
 
     def __init__(self, connection, limit=None, **kwargs):
         self.connection = connection
-        super(ConnectionPool, self).__init__(limit=limit)
+        super().__init__(limit=limit)
 
     def new(self):
         return self.connection.clone()
@@ -957,7 +1013,7 @@ class ChannelPool(Resource):
 
     def __init__(self, connection, limit=None, **kwargs):
         self.connection = connection
-        super(ChannelPool, self).__init__(limit=limit)
+        super().__init__(limit=limit)
 
     def new(self):
         return lazy(self.connection.channel)

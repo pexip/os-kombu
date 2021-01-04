@@ -1,3 +1,148 @@
+kombu (5.0.2-3) unstable; urgency=medium
+
+  * Add patch: allow-any-version-of-pytest.patch (Closes: #977069).
+
+ -- Thomas Goirand <zigo@debian.org>  Mon, 04 Jan 2021 19:08:48 +0100
+
+kombu (5.0.2-2) unstable; urgency=medium
+
+  * Team upload.
+  * Declare Breaks: python3-celery (<< 5.0)
+
+ -- Antonio Terceiro <terceiro@debian.org>  Mon, 26 Oct 2020 13:56:14 -0300
+
+kombu (5.0.2-1) unstable; urgency=medium
+
+  * Team upload.
+
+  [ Thomas Goirand ]
+  * New upstream release.
+  * Min version of python3-amqp is now 5.0.
+  * Add a debian/salsa-ci.yml.
+
+  [ Nicolas Dandrimont ]
+  * Mark import-only autopkgtests as superficial.
+  * Drop importlib-metadata dependencies, this module is built-in to
+    Python >= 3.8 (Closes: #964093).
+  * Drop unused upstream signing key.
+  * Add missing dependency on python3-vine (Closes: #971697).
+
+ -- Nicolas Dandrimont <olasd@debian.org>  Sat, 17 Oct 2020 01:22:45 +0200
+
+kombu (5.0.1-2) unstable; urgency=medium
+
+  [ Ondřej Nový ]
+  * d/control: Update Maintainer field with new Debian Python Team
+    contact address.
+  * d/control: Update Vcs-* fields with new Debian Python Team Salsa
+    layout.
+
+  [ Thomas Goirand ]
+  * Uploading to unstable
+
+ -- Thomas Goirand <zigo@debian.org>  Tue, 13 Oct 2020 15:06:04 +0200
+
+kombu (5.0.1-1) experimental; urgency=medium
+
+  * New upstream release.
+  * Fixed (build-)depends for this release.
+  * Refreshed 0002-Disable-intershpinx-mapping-for-now.patch.
+
+ -- Thomas Goirand <zigo@debian.org>  Wed, 23 Sep 2020 16:58:44 +0200
+
+kombu (4.6.11-2) unstable; urgency=medium
+
+  * Remove python3-funcsigs from B-D.
+    It is not needed anymore to perform the tests. (Closes: #960002)
+  * Improve d/clean.
+    Also remove unnecessary override_dh_clean from d/rules.
+
+ -- Sergio Durigan Junior <sergiodj@debian.org>  Wed, 01 Jul 2020 01:17:33 -0400
+
+kombu (4.6.11-1) unstable; urgency=low
+
+  * New upstream release (Closes: #963419).
+  * Refresh patches.
+  * Add python3-botocore to Build-Depends-Indep, required by tests.
+  * Bump debhelper version to 13.
+  * Fix file name in d/copyright so lintian can correctly detect that it
+    exists.
+  * Remove debian/upstream-signing-key.pgp from include-binaries, no
+    longer used.
+
+ -- Michael Fladischer <fladi@debian.org>  Tue, 30 Jun 2020 14:53:43 +0200
+
+kombu (4.6.8-1) unstable; urgency=medium
+
+  [ Michael Fladischer ]
+  * Run wrap-and-sort -bast to reduce diff size of future changes.
+
+  [ Sergio Durigan Junior ]
+  * New upstream version 4.6.8
+  * Mark python-kombu-doc as Multi-Arch: foreign.
+  * Bump Standards-Version to 4.5.0.
+  * Add myself to the list of Uploaders.
+
+ -- Sergio Durigan Junior <sergiodj@debian.org>  Fri, 13 Mar 2020 19:51:16 -0400
+
+kombu (4.6.7-1) unstable; urgency=low
+
+  [ Ondřej Nový ]
+  * Bump Standards-Version to 4.4.1.
+
+  [ Michael Fladischer ]
+  * New upstream release.
+  * Disable PGP signature check in uscan as upstream is not providing a
+    signature for current releases.
+  * Refresh patches.
+  * Clean up .pytest_cache/CACHEDIR.TAG to allow two builds in a row.
+  * Set Rules-Requires-Root: no.
+  * Bump debhelper version to 12.
+  * Bump dependency on python3-amqp to (>= 2.5.2).
+  * Fix typo in patch.
+  * Remove trailing whitespaces from d/changelog.
+  * Use https:// for uscan URL.
+  * Set Vcs-* to salsa.debian.org.
+
+ -- Michael Fladischer <fladi@debian.org>  Tue, 17 Dec 2019 22:30:32 +0100
+
+kombu (4.6.4-3) unstable; urgency=medium
+
+  * Uploading to unstable.
+
+ -- Thomas Goirand <zigo@debian.org>  Mon, 21 Oct 2019 00:32:32 +0200
+
+kombu (4.6.4-2) experimental; urgency=medium
+
+  * Correctly build-depends on python3-amqp >= 2.5.0.
+
+ -- Thomas Goirand <zigo@debian.org>  Thu, 12 Sep 2019 09:25:15 +0200
+
+kombu (4.6.4-1) experimental; urgency=medium
+
+  * New upstream release.
+  * Drop 0005-Fix-compat-with-redis3.patch applied upstream.
+  * Rebased 0003-Remove-pytest-sugar-from-test-requirements.patch.
+  * Drop 0004-Fix-failing-unittests-of-pyamqp-transport.patch applied upstream.
+  * Add python3-pyro4 to build-depends.
+  * Add python3-importlib-metadata to (build-)depends.
+  * Add allow-amqp-2.5.0.patch.
+
+ -- Thomas Goirand <zigo@debian.org>  Wed, 04 Sep 2019 13:25:50 +0200
+
+kombu (4.2.1-4) unstable; urgency=medium
+
+  * Team upload.
+
+  [ Ondřej Nový ]
+  * Use debhelper-compat instead of debian/compat.
+  * Bump Standards-Version to 4.4.0.
+
+  [ Andrey Rahmatullin ]
+  * Drop Python 2 support.
+
+ -- Andrey Rahmatullin <wrar@debian.org>  Wed, 07 Aug 2019 21:54:13 +0500
+
 kombu (4.2.1-3) unstable; urgency=medium
 
   [ Josue Ortega ]

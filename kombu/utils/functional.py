@@ -1,32 +1,28 @@
 """Functional Utilities."""
-from __future__ import absolute_import, unicode_literals
 
+from collections import OrderedDict, UserDict
+from collections.abc import Iterable, Mapping
 import random
 import sys
 import threading
+import inspect
 
-from collections import Iterable, Mapping, OrderedDict
 from itertools import count, repeat
-from time import sleep
+from time import sleep, time
 
 from vine.utils import wraps
 
-from kombu.five import (
-    UserDict, items, keys, python_2_unicode_compatible, string_t,
-)
-
 from .encoding import safe_repr as _safe_repr
 
-__all__ = [
+__all__ = (
     'LRUCache', 'memoize', 'lazy', 'maybe_evaluate',
-    'is_list', 'maybe_list', 'dictfilter',
-]
+    'is_list', 'maybe_list', 'dictfilter', 'retry_over_time',
+)
 
 KEYWORD_MARK = object()
 
 
-@python_2_unicode_compatible
-class ChannelPromise(object):
+class ChannelPromise:
 
     def __init__(self, contract):
         self.__contract__ = contract
@@ -42,7 +38,7 @@ class ChannelPromise(object):
         try:
             return repr(self.__value__)
         except AttributeError:
-            return '<promise: 0x{0:x}>'.format(id(self.__contract__))
+            return '<promise: 0x{:x}>'.format(id(self.__contract__))
 
 
 class LRUCache(UserDict):
@@ -110,7 +106,7 @@ class LRUCache(UserDict):
     def _iterate_keys(self):
         # userdict.keys in py3k calls __getitem__
         with self.mutex:
-            return keys(self.data)
+            return self.data.keys()
     iterkeys = _iterate_keys
 
     def incr(self, key, delta=1):
@@ -183,8 +179,7 @@ def memoize(maxsize=None, keyfun=None, Cache=LRUCache):
     return _memoize
 
 
-@python_2_unicode_compatible
-class lazy(object):
+class lazy:
     """Holds lazy evaluation.
 
     Evaluated when called or if the :meth:`evaluate` method is called.
@@ -225,13 +220,6 @@ class lazy(object):
         return (self.__class__, (self._fun,), {'_args': self._args,
                                                '_kwargs': self._kwargs})
 
-    if sys.version_info[0] < 3:
-
-        def __cmp__(self, rhs):
-            if isinstance(rhs, self.__class__):
-                return -cmp(rhs, self())
-            return cmp(self(), rhs)
-
 
 def maybe_evaluate(value):
     """Evaluate value only if value is a :class:`lazy` instance."""
@@ -240,24 +228,24 @@ def maybe_evaluate(value):
     return value
 
 
-def is_list(l, scalars=(Mapping, string_t), iters=(Iterable,)):
+def is_list(obj, scalars=(Mapping, str), iters=(Iterable,)):
     """Return true if the object is iterable.
 
     Note:
         Returns false if object is a mapping or string.
     """
-    return isinstance(l, iters) and not isinstance(l, scalars or ())
+    return isinstance(obj, iters) and not isinstance(obj, scalars or ())
 
 
-def maybe_list(l, scalars=(Mapping, string_t)):
+def maybe_list(obj, scalars=(Mapping, str)):
     """Return list of one element if ``l`` is a scalar."""
-    return l if l is None or is_list(l, scalars) else [l]
+    return obj if obj is None or is_list(obj, scalars) else [obj]
 
 
 def dictfilter(d=None, **kw):
     """Remove all keys from dict ``d`` whose value is :const:`None`."""
     d = kw if d is None else (dict(d, **kw) if kw else d)
-    return {k: v for k, v in items(d) if v is not None}
+    return {k: v for k, v in d.items() if v is not None}
 
 
 def shufflecycle(it):
@@ -293,9 +281,9 @@ def fxrangemax(start=1.0, stop=None, step=1.0, max=100.0):
         sum_ += cur
 
 
-def retry_over_time(fun, catch, args=[], kwargs={}, errback=None,
+def retry_over_time(fun, catch, args=None, kwargs=None, errback=None,
                     max_retries=None, interval_start=2, interval_step=2,
-                    interval_max=30, callback=None):
+                    interval_max=30, callback=None, timeout=None):
     """Retry the function over and over until max retries is exceeded.
 
     For each retry we sleep a for a while before we try again, this interval
@@ -316,22 +304,29 @@ def retry_over_time(fun, catch, args=[], kwargs={}, errback=None,
             which return the time in seconds to sleep next, and ``retries``
             is the number of previous retries.
         max_retries (int): Maximum number of retries before we give up.
-            If this is not set, we will retry forever.
+            If neither of this and timeout is set, we will retry forever.
+            If one of this and timeout is reached, stop.
         interval_start (float): How long (in seconds) we start sleeping
             between retries.
         interval_step (float): By how much the interval is increased for
             each retry.
         interval_max (float): Maximum number of seconds to sleep
             between retries.
+        timeout (int): Maximum seconds waiting before we give up.
     """
+    kwargs = {} if not kwargs else kwargs
+    args = [] if not args else args
     interval_range = fxrange(interval_start,
                              interval_max + interval_start,
                              interval_step, repeatlast=True)
+    end = time() + timeout if timeout else None
     for retries in count():
         try:
             return fun(*args, **kwargs)
         except catch as exc:
-            if max_retries and retries >= max_retries:
+            if max_retries is not None and retries >= max_retries:
+                raise
+            if end and time() > end:
                 raise
             if callback:
                 callback()
@@ -347,14 +342,23 @@ def retry_over_time(fun, catch, args=[], kwargs={}, errback=None,
 
 
 def reprkwargs(kwargs, sep=', ', fmt='{0}={1}'):
-    return sep.join(fmt.format(k, _safe_repr(v)) for k, v in items(kwargs))
+    return sep.join(fmt.format(k, _safe_repr(v)) for k, v in kwargs.items())
 
 
-def reprcall(name, args=(), kwargs={}, sep=', '):
-    return '{0}({1}{2}{3})'.format(
+def reprcall(name, args=(), kwargs=None, sep=', '):
+    kwargs = {} if not kwargs else kwargs
+    return '{}({}{}{})'.format(
         name, sep.join(map(_safe_repr, args or ())),
         (args and kwargs) and sep or '',
         reprkwargs(kwargs, sep),
+    )
+
+
+def accepts_argument(func, argument_name):
+    argument_spec = inspect.getfullargspec(func)
+    return (
+        argument_name in argument_spec.args or
+        argument_name in argument_spec.kwonlyargs
     )
 
 

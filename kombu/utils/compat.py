@@ -1,5 +1,4 @@
 """Python Compatibility Utilities."""
-from __future__ import absolute_import, unicode_literals
 
 import numbers
 import sys
@@ -8,7 +7,13 @@ from functools import wraps
 
 from contextlib import contextmanager
 
-from kombu.five import reraise
+try:
+    from importlib import metadata as importlib_metadata
+except ImportError:
+    # TODO: Remove this when we drop support for Python 3.7
+    import importlib_metadata
+
+from kombu.exceptions import reraise
 
 try:
     from io import UnsupportedOperation
@@ -83,11 +88,10 @@ def detect_environment():
 
 def entrypoints(namespace):
     """Return setuptools entrypoints for namespace."""
-    try:
-        from pkg_resources import iter_entry_points
-    except ImportError:
-        return iter([])
-    return ((ep, ep.load()) for ep in iter_entry_points(namespace))
+    return (
+        (ep, ep.load())
+        for ep in importlib_metadata.entry_points().get(namespace, [])
+    )
 
 
 def fileno(f):

@@ -17,7 +17,7 @@ Files: kombu/transport/mongodb.py
 Copyright: 2010-2013, Flavio Percoco Premoli
 License: BSD-3-clause
 
-Files: ./kombu/transport/zookeeper.py
+Files: kombu/transport/zookeeper.py
 Copyright: 2010-2013 Mahendra M.
 License: BSD-3-clause
 

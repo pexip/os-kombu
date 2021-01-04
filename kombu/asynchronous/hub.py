@@ -1,14 +1,11 @@
-# -*- coding: utf-8 -*-
 """Event loop implementation."""
-from __future__ import absolute_import, unicode_literals
 
 import errno
-import itertools
 from contextlib import contextmanager
+from queue import Empty
 from time import sleep
 from types import GeneratorType as generator  # noqa
 
-from kombu.five import Empty, python_2_unicode_compatible, range
 from kombu.log import get_logger
 from kombu.utils.compat import fileno
 from kombu.utils.eventio import ERR, READ, WRITE, poll
@@ -17,7 +14,7 @@ from vine import Thenable, promise
 
 from .timer import Timer
 
-__all__ = ['Hub', 'get_event_loop', 'set_event_loop']
+__all__ = ('Hub', 'get_event_loop', 'set_event_loop')
 logger = get_logger(__name__)
 
 _current_loop = None
@@ -52,8 +49,7 @@ def set_event_loop(loop):
     return loop
 
 
-@python_2_unicode_compatible
-class Hub(object):
+class Hub:
     """Event loop object.
 
     Arguments:
@@ -99,19 +95,29 @@ class Hub(object):
 
         self._create_poller()
 
+    @property
+    def poller(self):
+        if not self._poller:
+            self._create_poller()
+        return self._poller
+
+    @poller.setter
+    def poller(self, value):
+        self._poller = value
+
     def reset(self):
         self.close()
         self._create_poller()
 
     def _create_poller(self):
-        self.poller = poll()
-        self._register_fd = self.poller.register
-        self._unregister_fd = self.poller.unregister
+        self._poller = poll()
+        self._register_fd = self._poller.register
+        self._unregister_fd = self._poller.unregister
 
     def _close_poller(self):
-        if self.poller is not None:
-            self.poller.close()
-            self.poller = None
+        if self._poller is not None:
+            self._poller.close()
+            self._poller = None
             self._register_fd = None
             self._unregister_fd = None
 
@@ -119,7 +125,7 @@ class Hub(object):
         self.call_soon(_raise_stop_error)
 
     def __repr__(self):
-        return '<Hub@{0:#x}: R:{1} W:{2}>'.format(
+        return '<Hub@{:#x}: R:{} W:{}>'.format(
             id(self), len(self.readers), len(self.writers),
         )
 
@@ -245,6 +251,16 @@ class Hub(object):
         for callback in self.on_close:
             callback(self)
 
+        # Complete remaining todo before Hub close
+        # Eg: Acknowledge message
+        # To avoid infinite loop where one of the callables adds items
+        # to self._ready (via call_soon or otherwise).
+        # we create new list with current self._ready
+        todos = list(self._ready)
+        self._ready = set()
+        for item in todos:
+            item()
+
     def _discard(self, fd):
         fd = fileno(fd)
         self.readers.pop(fd, None)
@@ -269,24 +285,15 @@ class Hub(object):
         consolidate_callback = self.consolidate_callback
         on_tick = self.on_tick
         propagate = self.propagate_errors
-        todo = self._ready
 
         while 1:
+            todo = self._ready
+            self._ready = set()
+
             for tick_callback in on_tick:
                 tick_callback()
 
-            # To avoid infinite loop where one of the callables adds items
-            # to self._ready (via call_soon or otherwise), we take pop only
-            # N items from the ready set.
-            # N represents the current number of items on the set.
-            # That way if a todo adds another one to the ready set,
-            # we will break early and allow execution of readers and writers.
-            current_todos = len(todo)
-            for _ in itertools.repeat(None, current_todos):
-                if not todo:
-                    break
-
-                item = todo.pop()
+            for item in todo:
                 if item:
                     item()
 
@@ -297,8 +304,8 @@ class Hub(object):
                 try:
                     events = poll(poll_timeout)
                     #  print('[EVENTS]: %s' % (self.repr_events(events),))
-                except ValueError:  # Issue 882
-                    raise StopIteration()
+                except ValueError:  # Issue celery/#882
+                    return
 
                 for fd, event in events or ():
                     general_error = False

@@ -1,9 +1,7 @@
-from __future__ import absolute_import, unicode_literals
-
 import pickle
 import pytest
 
-from case import Mock, call
+from unittest.mock import Mock, call
 
 from kombu import Connection, Exchange, Producer, Queue, binding
 from kombu.abstract import MaybeChannelBound
@@ -71,7 +69,7 @@ class test_Exchange:
         bound = exchange.bind(chan)
         assert bound.is_bound
         assert bound.channel is chan
-        assert 'bound to chan:%r' % (chan.channel_id,) in repr(bound)
+        assert f'bound to chan:{chan.channel_id!r}' in repr(bound)
 
     def test_hash(self):
         assert hash(Exchange('a')) == hash(Exchange('a'))
@@ -214,6 +212,20 @@ class test_Queue:
     def setup(self):
         self.exchange = Exchange('foo', 'direct')
 
+    def test_constructor_with_actual_exchange(self):
+        exchange = Exchange('exchange_name', 'direct')
+        queue = Queue(name='queue_name', exchange=exchange)
+        assert queue.exchange == exchange
+
+    def test_constructor_with_string_exchange(self):
+        exchange_name = 'exchange_name'
+        queue = Queue(name='queue_name', exchange=exchange_name)
+        assert queue.exchange == Exchange(exchange_name)
+
+    def test_constructor_with_default_exchange(self):
+        queue = Queue(name='queue_name')
+        assert queue.exchange == Exchange('')
+
     def test_hash(self):
         assert hash(Queue('a')) == hash(Queue('a'))
         assert hash(Queue('a')) != hash(Queue('b'))
@@ -319,6 +331,9 @@ class test_Queue:
     def test_can_cache_declaration(self):
         assert Queue('a', durable=True).can_cache_declaration
         assert Queue('a', durable=False).can_cache_declaration
+        assert not Queue(
+            'a', queue_arguments={'x-expires': 100}
+        ).can_cache_declaration
 
     def test_eq(self):
         q1 = Queue('xxx', Exchange('xxx', 'direct'), 'xxx')
