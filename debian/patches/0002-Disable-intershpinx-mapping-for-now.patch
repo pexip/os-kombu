@@ -1,15 +1,19 @@
 From: Michael Fladischer <FladischerMichael@fladi.at>
 Date: Sun, 30 Jul 2017 22:22:36 +0200
-Subject: Disable intershpinx mapping for now.
- The best way to fix network requests when building the documentation would be to
- patch INTERSPHINX_MAPPING in sphinx_celery.conf in src:sphinx-celery.
-Last-Update: 2020-09-23
+Subject: Disable intershpinx mapping for now. The best way to fix network
+ requests when building the documentation would be to patch
+ INTERSPHINX_MAPPING in sphinx_celery.conf in src:sphinx-celery.
 
-Index: kombu/docs/conf.py
-===================================================================
---- kombu.orig/docs/conf.py
-+++ kombu/docs/conf.py
-@@ -25,4 +25,5 @@ globals().update(conf.build_config(
+Last-Update: 2020-09-23
+---
+ docs/conf.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/docs/conf.py b/docs/conf.py
+index 1f78148..28e55db 100644
+--- a/docs/conf.py
++++ b/docs/conf.py
+@@ -26,4 +26,5 @@ globals().update(conf.build_config(
          'kombu.utils',
          'kombu.transport.virtual.base',
      ],

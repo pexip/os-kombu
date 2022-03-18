@@ -1,3 +1,45 @@
+kombu (5.2.4-1) unstable; urgency=low
+
+  [ Debian Janitor ]
+  * Remove constraints unnecessary since buster:
+    + Build-Depends-Indep: Drop versioned constraint on python3-anyjson.
+    + python3-kombu: Drop versioned constraint on python3-anyjson in Depends.
+
+  [ Michael Fladischer ]
+  * New upstream release.
+  * Refresh patches.
+
+ -- Michael Fladischer <fladi@debian.org>  Fri, 18 Mar 2022 08:54:27 +0000
+
+kombu (5.2.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * Update year in d/copyright.
+
+ -- Michael Fladischer <fladi@debian.org>  Fri, 07 Jan 2022 17:05:20 +0000
+
+kombu (5.2.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * Refresh patches.
+  * Add d/upstream/metadata.
+  * Depend on python3-all for autopkgtests.
+
+ -- Michael Fladischer <fladi@debian.org>  Tue, 23 Nov 2021 09:56:31 +0000
+
+kombu (5.1.0-1) unstable; urgency=low
+
+  * New upstream release.
+  * Refresh patches.
+  * Bump Standards-Version to 4.6.0.1.
+  * Use uscan version 4.
+  * Add python3-azure to Build-Depends, required by tests.
+  * Configure tests using pybuild environment variables instead of
+    debhelper override.
+  * Enable upstream testsuite for autopkgtests.
+
+ -- Michael Fladischer <fladi@debian.org>  Wed, 15 Sep 2021 07:37:58 +0000
+
 kombu (5.0.2-3) unstable; urgency=medium
 
   * Add patch: allow-any-version-of-pytest.patch (Closes: #977069).

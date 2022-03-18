@@ -72,7 +72,6 @@ docs/reference/kombu.transport.pyro.rst
 docs/reference/kombu.transport.qpid.rst
 docs/reference/kombu.transport.redis.rst
 docs/reference/kombu.transport.rst
-docs/reference/kombu.transport.sqlalchemy.models.rst
 docs/reference/kombu.transport.sqlalchemy.rst
 docs/reference/kombu.transport.virtual.exchange.rst
 docs/reference/kombu.transport.virtual.rst

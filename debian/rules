@@ -1,6 +1,8 @@
 #!/usr/bin/make -f
 
 export PYBUILD_NAME=kombu
+export PYBUILD_BEFORE_TEST=cp -r {dir}/t {dir}/setup.cfg {build_dir}
+export PYBUILD_AFTER_TEST=rm -rf {build_dir}/t {build_dir}/setup.cfg
 
 %:
 	dh $@ --with python3,sphinxdoc --buildsystem=pybuild
@@ -9,11 +11,6 @@ override_dh_sphinxdoc:
 ifeq (,$(findstring nodoc, $(DEB_BUILD_OPTIONS)))
 	http_proxy=127.0.0.1:9 https_proxy=127.0.0.1:9 PYTHONPATH=. python3 -m sphinx -b html -d docs/.build/.doctrees -N docs $(CURDIR)/debian/python-kombu-doc/usr/share/doc/python-kombu-doc/html
 	dh_sphinxdoc
-endif
-
-override_dh_auto_test:
-ifeq (,$(findstring nocheck, $(DEB_BUILD_OPTIONS)))
-	dh_auto_test -- --system=custom --test-args="{interpreter} setup.py test"
 endif
 
 override_dh_python3:
