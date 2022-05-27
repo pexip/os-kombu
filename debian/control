@@ -11,32 +11,10 @@ XSBC-Pexip-Original-Uploaders:
 Build-Depends:
  debhelper (>= 11),
  dh-python,
- python-all,
- python-setuptools,
  python3-all,
  python3-setuptools,
  python3-sphinx,
 Build-Depends-Indep:
- python-amqp (>= 2.1.4) <!nocheck>,
- python-anyjson (>= 0.3.3) <!nocheck>,
- python-beanstalkc <!nocheck>,
- python-boto <!nocheck>,
- python-case <!nocheck>,
- python-couchdb <!nocheck>,
- python-django <!nocheck>,
- python-funcsigs <!nocheck>,
- python-mock <!nocheck>,
- python-msgpack <!nocheck>,
- python-pika <!nocheck>,
- python-pymongo (>= 2.6.2) <!nocheck>,
- python-pytest <!nocheck>,
- python-redis <!nocheck>,
- python-simplejson <!nocheck>,
- python-sqlalchemy <!nocheck>,
- python-tz <!nocheck>,
- python-unittest2 <!nocheck>,
- python-vine <!nocheck>,
- python-yaml <!nocheck>,
  python3-amqp (>= 2.1.4) <!nocheck>,
  python3-anyjson (>= 0.3.3) <!nocheck>,
  python3-case <!nocheck>,
@@ -53,49 +31,11 @@ Build-Depends-Indep:
  python3-tz <!nocheck>,
  python3-vine <!nocheck>,
  python3-yaml <!nocheck>,
-Build-Conflicts:
- python-cjson,
- python-sphinx,
 Standards-Version: 4.3.0
 Homepage: https://github.com/celery/kombu/
 Vcs-Git: https://salsa.debian.org/python-team/modules/kombu.git
 Vcs-Browser: https://salsa.debian.org/python-team/modules/kombu
 XS-Pexip-Upstream: http://ftp.debian.org/debian/ buster
-
-Package: python-kombu
-Architecture: all
-Depends:
- python-amqp (>= 1.4.6),
- python-anyjson (>= 0.3.3),
- python-vine,
- ${misc:Depends},
- ${python:Depends},
-Recommends:
- python-yaml,
-Breaks:
- python-cjson (<= 1.0.5-4+b1),
-Suggests:
- python-beanstalkc,
- python-boto,
- python-couchdb,
- python-django,
- python-kombu-doc,
- python-pika,
- python-pymongo (>= 2.6.2),
- python-redis,
- python-sqlalchemy,
-Description: AMQP Messaging Framework for Python
- The aim of Kombu is to make messaging in Python as easy as possible by
- providing an idiomatic high-level interface for the AMQP protocol. It is meant
- to replace the carrot library by providing a compatibility layer.
- .
- Features:
-  * Allows application authors to support several message server solutions by
-    using pluggable transports.
-  * Supports automatic encoding, serialization and compression of message
-    payloads.
-  * The ability to ensure that an operation is performed by gracefully handling
-    connection and channel errors.
 
 Package: python-kombu-doc
 Section: doc
