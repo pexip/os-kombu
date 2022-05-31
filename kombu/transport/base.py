@@ -1,5 +1,6 @@
 """Base transport interface."""
-from __future__ import absolute_import, unicode_literals
+# flake8: noqa
+
 
 import errno
 import socket
@@ -7,13 +8,12 @@ import socket
 from amqp.exceptions import RecoverableConnectionError
 
 from kombu.exceptions import ChannelError, ConnectionError
-from kombu.five import items
 from kombu.message import Message
 from kombu.utils.functional import dictfilter
 from kombu.utils.objects import cached_property
 from kombu.utils.time import maybe_s_to_ms
 
-__all__ = ['Message', 'StdChannel', 'Management', 'Transport']
+__all__ = ('Message', 'StdChannel', 'Management', 'Transport')
 
 RABBITMQ_QUEUE_ARGUMENTS = {  # type: Mapping[str, Tuple[str, Callable]]
     'expires': ('x-expires', maybe_s_to_ms),
@@ -53,7 +53,7 @@ def to_rabbitmq_queue_arguments(arguments, **options):
     """
     prepared = dictfilter(dict(
         _to_rabbitmq_queue_argument(key, value)
-        for key, value in items(options)
+        for key, value in options.items()
     ))
     return dict(arguments, **prepared) if prepared else arguments
 
@@ -70,7 +70,7 @@ def _LeftBlank(obj, method):
             obj.__class__, method))
 
 
-class StdChannel(object):
+class StdChannel:
     """Standard channel base class."""
 
     no_ack_consumers = None
@@ -93,7 +93,6 @@ class StdChannel(object):
            Reply queue semantics: can be used to delete the queue
            after transient reply message received.
         """
-        pass
 
     def prepare_queue_arguments(self, arguments, **kwargs):
         return arguments
@@ -105,7 +104,7 @@ class StdChannel(object):
         self.close()
 
 
-class Management(object):
+class Management:
     """AMQP Management API (incomplete)."""
 
     def __init__(self, transport):
@@ -138,7 +137,7 @@ default_transport_capabilities = Implements(
 )
 
 
-class Transport(object):
+class Transport:
     """Base class for transports."""
 
     Management = Management

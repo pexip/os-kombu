@@ -1,5 +1,4 @@
 """Logging Utilities."""
-from __future__ import absolute_import, unicode_literals
 
 import logging
 import numbers
@@ -8,12 +7,11 @@ import sys
 
 from logging.handlers import WatchedFileHandler
 
-from .five import string_t
 from .utils.encoding import safe_repr, safe_str
 from .utils.functional import maybe_evaluate
 from .utils.objects import cached_property
 
-__all__ = ['LogMixin', 'LOG_LEVELS', 'get_loglevel', 'setup_logging']
+__all__ = ('LogMixin', 'LOG_LEVELS', 'get_loglevel', 'setup_logging')
 
 try:
     LOG_LEVELS = dict(logging._nameToLevel)
@@ -27,7 +25,7 @@ DISABLE_TRACEBACKS = os.environ.get('DISABLE_TRACEBACKS')
 
 def get_logger(logger):
     """Get logger by name."""
-    if isinstance(logger, string_t):
+    if isinstance(logger, str):
         logger = logging.getLogger(logger)
     if not logger.handlers:
         logger.addHandler(logging.NullHandler())
@@ -36,7 +34,7 @@ def get_logger(logger):
 
 def get_loglevel(level):
     """Get loglevel by name."""
-    if isinstance(level, string_t):
+    if isinstance(level, str):
         return LOG_LEVELS[level]
     return level
 
@@ -47,15 +45,14 @@ def naive_format_parts(fmt):
         yield None if not e or not parts[i - 1] else e[0]
 
 
-def safeify_format(fmt, args,
-                   filters={'s': safe_str,
-                            'r': safe_repr}):
+def safeify_format(fmt, args, filters=None):
+    filters = {'s': safe_str, 'r': safe_repr} if not filters else filters
     for index, type in enumerate(naive_format_parts(fmt)):
         filt = filters.get(type)
         yield filt(args[index]) if filt else args[index]
 
 
-class LogMixin(object):
+class LogMixin:
     """Mixin that adds severity methods to any class."""
 
     def debug(self, *args, **kwargs):
@@ -68,24 +65,22 @@ class LogMixin(object):
         return self.log(logging.WARN, *args, **kwargs)
 
     def error(self, *args, **kwargs):
-        return self._error(logging.ERROR, *args, **kwargs)
+        kwargs.setdefault('exc_info', True)
+        return self.log(logging.ERROR, *args, **kwargs)
 
     def critical(self, *args, **kwargs):
-        return self._error(logging.CRITICAL, *args, **kwargs)
-
-    def _error(self, severity, *args, **kwargs):
         kwargs.setdefault('exc_info', True)
-        if DISABLE_TRACEBACKS:
-            kwargs.pop('exc_info', None)
-        return self.log(severity, *args, **kwargs)
+        return self.log(logging.CRITICAL, *args, **kwargs)
 
     def annotate(self, text):
-        return '%s - %s' % (self.logger_name, text)
+        return f'{self.logger_name} - {text}'
 
     def log(self, severity, *args, **kwargs):
+        if DISABLE_TRACEBACKS:
+            kwargs.pop('exc_info', None)
         if self.logger.isEnabledFor(severity):
             log = self.logger.log
-            if len(args) > 1 and isinstance(args[0], string_t):
+            if len(args) > 1 and isinstance(args[0], str):
                 expand = [maybe_evaluate(arg) for arg in args[1:]]
                 return log(severity,
                            self.annotate(args[0].replace('%r', '%s')),

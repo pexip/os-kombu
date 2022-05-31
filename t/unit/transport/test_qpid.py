@@ -1,5 +1,3 @@
-from __future__ import absolute_import, unicode_literals
-
 import pytest
 import select
 import ssl
@@ -7,13 +5,16 @@ import socket
 import sys
 import time
 import uuid
+from queue import Empty
 
-from collections import Callable, OrderedDict
+from collections import OrderedDict
+
+from collections.abc import Callable
+
 from itertools import count
 
-from case import Mock, call, patch, skip
+from unittest.mock import Mock, call, patch
 
-from kombu.five import Empty, keys, range, monotonic
 from kombu.transport.qpid import (AuthenticationFailure, Channel, Connection,
                                   ConnectionError, Message, NotFound, QoS,
                                   Transport)
@@ -28,31 +29,6 @@ def disable_runtime_dependency_check(patching):
     mock_dependency_is_none = patching(QPID_MODULE + '.dependency_is_none')
     mock_dependency_is_none.return_value = False
     return mock_dependency_is_none
-
-
-class ExtraAssertionsMixin(object):
-    """A mixin class adding assertDictEqual and assertDictContainsSubset"""
-
-    def assertDictEqual(self, a, b, msg=None):
-        """
-        Test that two dictionaries are equal.
-
-        Implemented here because this method was not available until Python
-        2.6. This asserts that the unique set of keys are the same in a and b.
-        Also asserts that the value of each key is the same in a and b using
-        the is operator.
-        """
-        assert set(keys(a)) == set(keys(b))
-        for key in keys(a):
-            assert a[key] == b[key]
-
-    def assertDictContainsSubset(self, a, b, msg=None):
-        """
-        Assert that all the key/value pairs in a exist in b.
-        """
-        for key in keys(a):
-            assert key in b
-            assert a[key] == b[key]
 
 
 class QpidException(Exception):
@@ -70,9 +46,8 @@ class BreakOutException(Exception):
     pass
 
 
-@skip.if_python3()
-@skip.if_pypy()
-class test_QoS__init__(object):
+@pytest.mark.skip(reason='Not supported in Python3')
+class test_QoS__init__:
 
     def setup(self):
         self.mock_session = Mock()
@@ -89,9 +64,8 @@ class test_QoS__init__(object):
         assert isinstance(self.qos._not_yet_acked, OrderedDict)
 
 
-@skip.if_python3()
-@skip.if_pypy()
-class test_QoS_can_consume(object):
+@pytest.mark.skip(reason='Not supported in Python3')
+class test_QoS_can_consume:
 
     def setup(self):
         session = Mock()
@@ -113,9 +87,8 @@ class test_QoS_can_consume(object):
         assert not self.qos.can_consume()
 
 
-@skip.if_python3()
-@skip.if_pypy()
-class test_QoS_can_consume_max_estimate(object):
+@pytest.mark.skip(reason='Not supported in Python3')
+class test_QoS_can_consume_max_estimate:
 
     def setup(self):
         self.mock_session = Mock()
@@ -131,9 +104,8 @@ class test_QoS_can_consume_max_estimate(object):
         assert self.qos.can_consume_max_estimate() == 2
 
 
-@skip.if_python3()
-@skip.if_pypy()
-class test_QoS_ack(object):
+@pytest.mark.skip(reason='Not supported in Python3')
+class test_QoS_ack:
 
     def setup(self):
         self.mock_session = Mock()
@@ -153,9 +125,8 @@ class test_QoS_ack(object):
         self.qos.session.acknowledge.assert_called_with(message=message)
 
 
-@skip.if_python3()
-@skip.if_pypy()
-class test_QoS_reject(object):
+@pytest.mark.skip(reason='Not supported in Python3')
+class test_QoS_reject:
 
     @pytest.fixture(autouse=True)
     def setup_qpid(self, patching):
@@ -194,14 +165,13 @@ class test_QoS_reject(object):
         )
 
 
-@skip.if_python3()
-@skip.if_pypy()
-class test_QoS(object):
+@pytest.mark.skip(reason='Not supported in Python3')
+class test_QoS:
 
     def mock_message_factory(self):
         """Create and return a mock message tag and delivery_tag."""
         m_delivery_tag = self.delivery_tag_generator.next()
-        m = 'message %s' % (m_delivery_tag, )
+        m = f'message {m_delivery_tag}'
         return m, m_delivery_tag
 
     def add_n_messages_to_qos(self, n, qos):
@@ -255,9 +225,8 @@ class test_QoS(object):
         assert m2 is message2
 
 
-@skip.if_python3()
-@skip.if_pypy()
-class ConnectionTestBase(object):
+@pytest.mark.skip(reason='Not supported in Python3')
+class ConnectionTestBase:
 
     @patch(QPID_MODULE + '.qpid')
     def setup(self, mock_qpid):
@@ -272,17 +241,14 @@ class ConnectionTestBase(object):
         self.conn = Connection(**self.connection_options)
 
 
-@skip.if_python3()
-@skip.if_pypy()
-class test_Connection__init__(ExtraAssertionsMixin, ConnectionTestBase):
+@pytest.mark.skip(reason='Not supported in Python3')
+class test_Connection__init__(ConnectionTestBase):
 
     def test_stores_connection_options(self):
         # ensure that only one mech was passed into connection. The other
         # options should all be passed through as-is
         modified_conn_opts = self.connection_options
-        self.assertDictEqual(
-            modified_conn_opts, self.conn.connection_options,
-        )
+        assert modified_conn_opts == self.conn.connection_options
 
     def test_class_variables(self):
         assert isinstance(self.conn.channels, list)
@@ -398,16 +364,14 @@ class test_Connection__init__(ExtraAssertionsMixin, ConnectionTestBase):
             Connection(**self.connection_options)
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 class test_Connection_class_attributes(ConnectionTestBase):
 
     def test_connection_verify_class_attributes(self):
         assert Channel == Connection.Channel
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 class test_Connection_get_Qpid_connection(ConnectionTestBase):
 
     def test_connection_get_qpid_connection(self):
@@ -416,8 +380,7 @@ class test_Connection_get_Qpid_connection(ConnectionTestBase):
         assert self.conn._qpid_conn is returned_connection
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 class test_Connection_close(ConnectionTestBase):
 
     def test_connection_close(self):
@@ -426,12 +389,11 @@ class test_Connection_close(ConnectionTestBase):
         self.conn._qpid_conn.close.assert_called_once_with()
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 class test_Connection_close_channel(ConnectionTestBase):
 
     def setup(self):
-        super(test_Connection_close_channel, self).setup()
+        super().setup()
         self.conn.channels = Mock()
 
     def test_connection_close_channel_removes_channel_from_channel_list(self):
@@ -451,9 +413,8 @@ class test_Connection_close_channel(ConnectionTestBase):
         assert mock_channel.connection is None
 
 
-@skip.if_python3()
-@skip.if_pypy()
-class ChannelTestBase(object):
+@pytest.mark.skip(reason='Not supported in Python3')
+class ChannelTestBase:
 
     @pytest.fixture(autouse=True)
     def setup_channel(self, patching):
@@ -464,8 +425,7 @@ class ChannelTestBase(object):
         self.channel = Channel(self.conn, self.transport)
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 class test_Channel_purge(ChannelTestBase):
 
     def setup(self):
@@ -504,8 +464,7 @@ class test_Channel_purge(ChannelTestBase):
             self.channel._purge(self.mock_queue)
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 class test_Channel_put(ChannelTestBase):
 
     @patch(QPID_MODULE + '.qpid')
@@ -552,8 +511,7 @@ class test_Channel_put(ChannelTestBase):
         mock_sender.close.assert_called_with()
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 class test_Channel_get(ChannelTestBase):
 
     def test_channel__get(self):
@@ -568,8 +526,7 @@ class test_Channel_get(ChannelTestBase):
         assert mock_rx.fetch.return_value is result
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 class test_Channel_close(ChannelTestBase):
 
     @pytest.fixture(autouse=True)
@@ -612,8 +569,7 @@ class test_Channel_close(ChannelTestBase):
         self.conn.close_channel.assert_not_called()
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 class test_Channel_basic_qos(ChannelTestBase):
 
     def test_channel_basic_qos_always_returns_one(self):
@@ -621,8 +577,7 @@ class test_Channel_basic_qos(ChannelTestBase):
         assert self.channel.qos.prefetch_count == 1
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 class test_Channel_basic_get(ChannelTestBase):
 
     @pytest.fixture(autouse=True)
@@ -678,8 +633,7 @@ class test_Channel_basic_get(ChannelTestBase):
         assert basic_get_result is None
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 class test_Channel_basic_cancel(ChannelTestBase):
 
     @pytest.fixture(autouse=True)
@@ -710,9 +664,8 @@ class test_Channel_basic_cancel(ChannelTestBase):
         self.conn._callbacks.pop.assert_called_once_with(mock_queue, None)
 
 
-@skip.if_python3()
-@skip.if_pypy()
-class test_Channel__init__(ChannelTestBase, ExtraAssertionsMixin):
+@pytest.mark.skip(reason='Not supported in Python3')
+class test_Channel__init__(ChannelTestBase):
 
     def test_channel___init__sets_variables_as_expected(self):
         assert self.conn is self.channel.connection
@@ -721,14 +674,13 @@ class test_Channel__init__(ChannelTestBase, ExtraAssertionsMixin):
         self.conn.get_qpid_connection.assert_called_once_with()
         expected_broker_agent = self.mock_broker_agent.return_value
         assert self.channel._broker is expected_broker_agent
-        self.assertDictEqual(self.channel._tag_to_queue, {})
-        self.assertDictEqual(self.channel._receivers, {})
+        assert self.channel._tag_to_queue == {}
+        assert self.channel._receivers == {}
         assert self.channel._qos is None
 
 
-@skip.if_python3()
-@skip.if_pypy()
-class test_Channel_basic_consume(ChannelTestBase, ExtraAssertionsMixin):
+@pytest.mark.skip(reason='Not supported in Python3')
+class test_Channel_basic_consume(ChannelTestBase):
 
     @pytest.fixture(autouse=True)
     def setup_callbacks(self, setup_channel):
@@ -739,7 +691,7 @@ class test_Channel_basic_consume(ChannelTestBase, ExtraAssertionsMixin):
         mock_queue = Mock()
         self.channel.basic_consume(mock_queue, Mock(), Mock(), mock_tag)
         expected_dict = {mock_tag: mock_queue}
-        self.assertDictEqual(expected_dict, self.channel._tag_to_queue)
+        assert expected_dict == self.channel._tag_to_queue
 
     def test_channel_basic_consume_adds_entry_to_connection__callbacks(self):
         mock_queue = Mock()
@@ -757,7 +709,7 @@ class test_Channel_basic_consume(ChannelTestBase, ExtraAssertionsMixin):
         self.channel.basic_consume(Mock(), Mock(), Mock(), mock_tag)
         new_mock_receiver = self.transport.session.receiver.return_value
         expected_dict = {mock_tag: new_mock_receiver}
-        self.assertDictEqual(expected_dict, self.channel._receivers)
+        assert expected_dict == self.channel._receivers
 
     def test_channel_basic_consume_sets_capacity_on_new_receiver(self):
         mock_prefetch_count = Mock()
@@ -816,8 +768,7 @@ class test_Channel_basic_consume(ChannelTestBase, ExtraAssertionsMixin):
         mock_original_callback.assert_called_once_with(expected_message)
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 class test_Channel_queue_delete(ChannelTestBase):
 
     @pytest.fixture(autouse=True)
@@ -863,9 +814,8 @@ class test_Channel_queue_delete(ChannelTestBase):
         self.mock__delete.assert_called_once_with(self.mock_queue)
 
 
-@skip.if_python3()
-@skip.if_pypy()
-class test_Channel(ExtraAssertionsMixin):
+@pytest.mark.skip(reason='Not supported in Python3')
+class test_Channel:
 
     @patch(QPID_MODULE + '.qpidtoollibs')
     def setup(self, mock_qpidtoollibs):
@@ -1247,8 +1197,8 @@ class test_Channel(ExtraAssertionsMixin):
         assert mock_body is result['body']
         assert mock_content_encoding is result['content-encoding']
         assert mock_content_type is result['content-type']
-        self.assertDictEqual(headers, result['headers'])
-        self.assertDictContainsSubset(properties, result['properties'])
+        assert headers == result['headers']
+        assert properties == result['properties']
         assert (mock_priority is
                 result['properties']['delivery_info']['priority'])
 
@@ -1351,10 +1301,9 @@ class test_Channel(ExtraAssertionsMixin):
         assert mock_default is result
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 @pytest.mark.usefixtures('disable_runtime_dependency_check')
-class test_Transport__init__(object):
+class test_Transport__init__:
 
     @pytest.fixture(autouse=True)
     def mock_verify_runtime_environment(self, patching):
@@ -1380,10 +1329,9 @@ class test_Transport__init__(object):
         assert not transport.use_async_interface
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 @pytest.mark.usefixtures('disable_runtime_dependency_check')
-class test_Transport_drain_events(object):
+class test_Transport_drain_events:
 
     @pytest.fixture(autouse=True)
     def setup_self(self, disable_runtime_dependency_check):
@@ -1416,12 +1364,12 @@ class test_Transport_drain_events(object):
 
     def test_timeout_returns_no_earlier_then_asked_for(self):
         self.transport.session.next_receiver = self.mock_next_receiver
-        start_time = monotonic()
+        start_time = time.monotonic()
         try:
             self.transport.drain_events(self.mock_conn, timeout=1)
         except socket.timeout:
             pass
-        elapsed_time_in_s = monotonic() - start_time
+        elapsed_time_in_s = time.monotonic() - start_time
         assert elapsed_time_in_s >= 1.0
 
     def test_callback_is_called(self):
@@ -1433,9 +1381,8 @@ class test_Transport_drain_events(object):
         self.mock_callback.assert_called_with(self.mock_message)
 
 
-@skip.if_python3()
-@skip.if_pypy()
-class test_Transport_create_channel(object):
+@pytest.mark.skip(reason='Not supported in Python3')
+class test_Transport_create_channel:
 
     @pytest.fixture(autouse=True)
     def setup_self(self, disable_runtime_dependency_check):
@@ -1457,15 +1404,14 @@ class test_Transport_create_channel(object):
         append_method.assert_called_with(self.mock_new_channel)
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 @pytest.mark.usefixtures('disable_runtime_dependency_check')
-class test_Transport_establish_connection(object):
+class test_Transport_establish_connection:
 
     @pytest.fixture(autouse=True)
     def setup_self(self, disable_runtime_dependency_check):
 
-        class MockClient(object):
+        class MockClient:
             pass
 
         self.client = MockClient()
@@ -1674,9 +1620,8 @@ class test_Transport_establish_connection(object):
         mock_set_callback.assert_called_once_with(exc_callback)
 
 
-@skip.if_python3()
-@skip.if_pypy()
-class test_Transport_class_attributes(object):
+@pytest.mark.skip(reason='Not supported in Python3')
+class test_Transport_class_attributes:
 
     def test_verify_Connection_attribute(self):
         assert Connection is Transport.Connection
@@ -1684,12 +1629,15 @@ class test_Transport_class_attributes(object):
     def test_verify_polling_disabled(self):
         assert Transport.polling_interval is None
 
-    def test_transport_verify_supports_asynchronous_events(self):
-        assert Transport.supports_ev
-
     def test_verify_driver_type_and_name(self):
         assert Transport.driver_type == 'qpid'
         assert Transport.driver_name == 'qpid'
+
+    def test_verify_implements_exchange_types(self):
+        assert 'fanout' in Transport.implements.exchange_type
+        assert 'direct' in Transport.implements.exchange_type
+        assert 'topic' in Transport.implements.exchange_type
+        assert 'frobnitz' not in Transport.implements.exchange_type
 
     def test_transport_verify_recoverable_connection_errors(self):
         connection_errors = Transport.recoverable_connection_errors
@@ -1707,10 +1655,9 @@ class test_Transport_class_attributes(object):
                 Transport.connection_errors)
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 @pytest.mark.usefixtures('disable_runtime_dependency_check')
-class test_Transport_register_with_event_loop(object):
+class test_Transport_register_with_event_loop:
 
     def test_transport_register_with_event_loop_calls_add_reader(self):
         transport = Transport(Mock())
@@ -1722,10 +1669,9 @@ class test_Transport_register_with_event_loop(object):
         )
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 @pytest.mark.usefixtures('disable_runtime_dependency_check')
-class test_Transport_Qpid_callback_handlers_async(object):
+class test_Transport_Qpid_callback_handlers_async:
 
     @pytest.fixture(autouse=True)
     def setup_self(self, patching, disable_runtime_dependency_check):
@@ -1742,10 +1688,9 @@ class test_Transport_Qpid_callback_handlers_async(object):
         self.mock_os_write.assert_called_once_with(self.transport._w, 'e')
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 @pytest.mark.usefixtures('disable_runtime_dependency_check')
-class test_Transport_Qpid_callback_handlers_sync(object):
+class test_Transport_Qpid_callback_handlers_sync:
 
     @pytest.fixture(autouse=True)
     def setup(self, patching, disable_runtime_dependency_check):
@@ -1761,10 +1706,9 @@ class test_Transport_Qpid_callback_handlers_sync(object):
         self.mock_os_write.assert_not_called()
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 @pytest.mark.usefixtures('disable_runtime_dependency_check')
-class test_Transport_on_readable(object):
+class test_Transport_on_readable:
 
     @pytest.fixture(autouse=True)
     def setup_self(self, patching, disable_runtime_dependency_check):
@@ -1793,10 +1737,9 @@ class test_Transport_on_readable(object):
             self.transport.on_readable(Mock(), Mock())
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 @pytest.mark.usefixtures('disable_runtime_dependency_check')
-class test_Transport_verify_runtime_environment(object):
+class test_Transport_verify_runtime_environment:
 
     @pytest.fixture(autouse=True)
     def setup_self(self, patching):
@@ -1831,14 +1774,17 @@ class test_Transport_verify_runtime_environment(object):
         self.verify_runtime_environment(self.transport)
 
 
-@skip.if_python3()
-@skip.if_pypy()
+@pytest.mark.skip(reason='Not supported in Python3')
 @pytest.mark.usefixtures('disable_runtime_dependency_check')
-class test_Transport(ExtraAssertionsMixin):
+class test_Transport:
 
     def setup(self):
         """Creates a mock_client to be used in testing."""
         self.mock_client = Mock()
+
+    def test_supports_ev(self):
+        """Test that the transport claims to support async event loop"""
+        assert Transport(self.mock_client).supports_ev
 
     def test_close_connection(self):
         """Test that close_connection calls close on the connection."""
@@ -1855,7 +1801,7 @@ class test_Transport(ExtraAssertionsMixin):
         }
         my_transport = Transport(self.mock_client)
         result_params = my_transport.default_connection_params
-        self.assertDictEqual(correct_params, result_params)
+        assert correct_params == result_params
 
     @patch(QPID_MODULE + '.os.close')
     def test_del_sync(self, close):

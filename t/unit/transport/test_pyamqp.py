@@ -1,13 +1,11 @@
-from __future__ import absolute_import, unicode_literals
-
 import sys
 
 from itertools import count
 
-from case import Mock, mock, patch
+from unittest.mock import Mock, patch
+from case import mock
 
 from kombu import Connection
-from kombu.five import nextfun
 from kombu.transport import pyamqp
 
 
@@ -43,7 +41,7 @@ class test_Channel:
                 pass
 
         self.conn = Mock()
-        self.conn._get_free_channel_id.side_effect = nextfun(count(0))
+        self.conn._get_free_channel_id.side_effect = count(0).__next__
         self.conn.channels = {}
         self.channel = Channel(self.conn, 0)
 
@@ -68,11 +66,11 @@ class test_Channel:
         assert self.channel.connection is None
 
     def test_basic_consume_registers_ack_status(self):
-        self.channel.wait_returns = 'my-consumer-tag'
+        self.channel.wait_returns = ['my-consumer-tag']
         self.channel.basic_consume('foo', no_ack=True)
         assert 'my-consumer-tag' in self.channel.no_ack_consumers
 
-        self.channel.wait_returns = 'other-consumer-tag'
+        self.channel.wait_returns = ['other-consumer-tag']
         self.channel.basic_consume('bar', no_ack=False)
         assert 'other-consumer-tag' not in self.channel.no_ack_consumers
 
@@ -91,6 +89,15 @@ class test_Transport:
         self.transport.create_channel(connection)
         connection.channel.assert_called_with()
 
+    def test_ssl_cert_passed(self):
+        ssl_dict = {
+            'ca_certs': '/etc/pki/tls/certs/something.crt',
+            'cert_reqs': "ssl.CERT_REQUIRED",
+        }
+        ssl_dict_copy = {k: ssl_dict[k] for k in ssl_dict}
+        connection = Connection('amqps://', ssl=ssl_dict_copy)
+        assert connection.transport.client.ssl == ssl_dict
+
     def test_driver_version(self):
         assert self.transport.driver_version()
 
@@ -101,7 +108,7 @@ class test_Transport:
 
     def test_dnspython_localhost_resolve_bug(self):
 
-        class Conn(object):
+        class Conn:
 
             def __init__(self, **kwargs):
                 vars(self).update(kwargs)
@@ -145,7 +152,7 @@ class test_pyamqp:
             Connection = MockConnection
 
         c = Connection(port=None, transport=Transport).connect()
-        assert c['host'] == '127.0.0.1:%s' % (Transport.default_port,)
+        assert c['host'] == f'127.0.0.1:{Transport.default_port}'
 
     def test_custom_port(self):
 

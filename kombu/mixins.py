@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 """Mixins."""
-from __future__ import absolute_import, unicode_literals
 
 import socket
 
@@ -10,7 +8,6 @@ from itertools import count
 from time import sleep
 
 from .common import ignore_errors
-from .five import range
 from .messaging import Consumer, Producer
 from .log import get_logger
 from .utils.compat import nested
@@ -18,10 +15,15 @@ from .utils.encoding import safe_repr
 from .utils.limits import TokenBucket
 from .utils.objects import cached_property
 
-__all__ = ['ConsumerMixin', 'ConsumerProducerMixin']
+__all__ = ('ConsumerMixin', 'ConsumerProducerMixin')
 
 logger = get_logger(__name__)
-debug, info, warn, error = logger.debug, logger.info, logger.warn, logger.error
+debug, info, warn, error = (
+    logger.debug,
+    logger.info,
+    logger.warning,
+    logger.error
+)
 
 W_CONN_LOST = """\
 Connection to broker lost, trying to re-establish connection...\
@@ -32,7 +34,7 @@ Broker connection error, trying again in %s seconds: %r.\
 """
 
 
-class ConsumerMixin(object):
+class ConsumerMixin:
     """Convenience mixin for implementing consumer programs.
 
     It can be used outside of threads, with threads, or greenthreads
@@ -195,7 +197,7 @@ class ConsumerMixin(object):
                     elapsed += safety_interval
                     if timeout and elapsed >= timeout:
                         raise
-                except socket.error:
+                except OSError:
                     if not self.should_stop:
                         raise
                 else:

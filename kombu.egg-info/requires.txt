@@ -1,4 +1,13 @@
-amqp<3.0,>=2.1.4
+amqp<6.0.0,>=5.0.0
+
+[:python_version < "3.8"]
+importlib-metadata>=0.18
+
+[azureservicebus]
+azure-servicebus>=0.21.1
+
+[azurestoragequeues]
+azure-storage-queue
 
 [consul]
 python-consul>=0.6.0
@@ -7,7 +16,7 @@ python-consul>=0.6.0
 librabbitmq>=1.5.2
 
 [mongodb]
-pymongo<3.0,>=2.6.2
+pymongo>=3.3.0
 
 [msgpack]
 msgpack
@@ -20,7 +29,7 @@ qpid-python>=0.26
 qpid-tools>=0.26
 
 [redis]
-redis>=2.10.5
+redis>=3.3.11
 
 [slmq]
 softlayer_messaging>=1.0.3
@@ -30,7 +39,7 @@ sqlalchemy
 
 [sqs]
 boto3>=1.4.4
-pycurl
+pycurl==7.43.0.2
 
 [yaml]
 PyYAML>=3.10
