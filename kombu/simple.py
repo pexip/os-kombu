@@ -1,19 +1,19 @@
 """Simple messaging interface."""
-from __future__ import absolute_import, unicode_literals
 
 import socket
 
 from collections import deque
+from queue import Empty
+from time import monotonic
 
 from . import entity
 from . import messaging
 from .connection import maybe_channel
-from .five import Empty, monotonic
 
-__all__ = ['SimpleQueue', 'SimpleBuffer']
+__all__ = ('SimpleQueue', 'SimpleBuffer')
 
 
-class SimpleBase(object):
+class SimpleBase:
     Empty = Empty
     _consuming = False
 
@@ -113,19 +113,23 @@ class SimpleQueue(SimpleBase):
 
     no_ack = False
     queue_opts = {}
+    queue_args = {}
     exchange_opts = {'type': 'direct'}
 
     def __init__(self, channel, name, no_ack=None, queue_opts=None,
-                 exchange_opts=None, serializer=None,
+                 queue_args=None, exchange_opts=None, serializer=None,
                  compression=None, **kwargs):
         queue = name
         queue_opts = dict(self.queue_opts, **queue_opts or {})
+        queue_args = dict(self.queue_args, **queue_args or {})
         exchange_opts = dict(self.exchange_opts, **exchange_opts or {})
         if no_ack is None:
             no_ack = self.no_ack
         if not isinstance(queue, entity.Queue):
             exchange = entity.Exchange(name, **exchange_opts)
-            queue = entity.Queue(name, exchange, name, **queue_opts)
+            queue = entity.Queue(name, exchange, name,
+                                 queue_arguments=queue_args,
+                                 **queue_opts)
             routing_key = name
         else:
             exchange = queue.exchange
@@ -135,8 +139,8 @@ class SimpleQueue(SimpleBase):
                                       serializer=serializer,
                                       routing_key=routing_key,
                                       compression=compression)
-        super(SimpleQueue, self).__init__(channel, producer,
-                                          consumer, no_ack, **kwargs)
+        super().__init__(channel, producer,
+                         consumer, no_ack, **kwargs)
 
 
 class SimpleBuffer(SimpleQueue):

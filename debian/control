@@ -2,45 +2,52 @@ Source: kombu
 Section: python
 Priority: optional
 Maintainer: Pexip AS <packaging@pexip.com>
-XSBC-Pexip-Original-Maintainer: Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
+XSBC-Pexip-Original-Maintainer: Debian Python Team <team+python@tracker.debian.org>
 XSBC-Pexip-Original-Uploaders:
  Michael Fladischer <fladi@debian.org>,
  Brian May <bam@debian.org>,
  Christopher Hoskin <mans0954@debian.org>,
  Thomas Goirand <zigo@debian.org>,
+ Sergio Durigan Junior <sergiodj@debian.org>,
 Build-Depends:
- debhelper (>= 11),
+ debhelper-compat (= 13),
  dh-python,
  python3-all,
  python3-setuptools,
  python3-sphinx,
 Build-Depends-Indep:
- python3-amqp (>= 2.1.4) <!nocheck>,
+ python3-amqp (>= 5.0.0) <!nocheck>,
  python3-anyjson (>= 0.3.3) <!nocheck>,
+ python3-botocore <!nocheck>,
  python3-case <!nocheck>,
  python3-django <!nocheck>,
- python3-funcsigs <!nocheck>,
  python3-mock <!nocheck>,
  python3-msgpack <!nocheck>,
  python3-pymongo <!nocheck>,
+ python3-pyro4 <!nocheck>,
  python3-pytest <!nocheck>,
- python3-redis <!nocheck>,
+ python3-redis (>= 3.3.11) <!nocheck>,
  python3-simplejson <!nocheck>,
  python3-sphinx-celery <!nodoc>,
  python3-sqlalchemy <!nocheck>,
  python3-tz <!nocheck>,
  python3-vine <!nocheck>,
  python3-yaml <!nocheck>,
-Standards-Version: 4.3.0
+Build-Conflicts:
+ python-cjson,
+ python-sphinx,
+Standards-Version: 4.5.0
 Homepage: https://github.com/celery/kombu/
-Vcs-Git: https://salsa.debian.org/python-team/modules/kombu.git
-Vcs-Browser: https://salsa.debian.org/python-team/modules/kombu
+Vcs-Git: https://salsa.debian.org/python-team/packages/kombu.git
+Vcs-Browser: https://salsa.debian.org/python-team/packages/kombu
+Rules-Requires-Root: no
 XS-Pexip-Upstream: http://deb.debian.org/debian/ bullseye
 
 Package: python-kombu-doc
 Section: doc
 Architecture: all
 Build-Profiles: <!nodoc>
+Multi-Arch: foreign
 Depends:
  ${misc:Depends},
  ${sphinxdoc:Depends},
@@ -62,7 +69,7 @@ Description: AMQP Messaging Framework for Python (Documentation)
 Package: python3-kombu
 Architecture: all
 Depends:
- python3-amqp (>= 1.4.6),
+ python3-amqp (>= 5.0.0),
  python3-anyjson (>= 0.3.3),
  python3-vine,
  ${misc:Depends},
@@ -76,6 +83,8 @@ Suggests:
  python3-pymongo,
  python3-redis,
  python3-sqlalchemy,
+Breaks:
+ python3-celery (<< 5.0),
 Description: AMQP Messaging Framework for Python (Python3 version)
  The aim of Kombu is to make messaging in Python as easy as possible by
  providing an idiomatic high-level interface for the AMQP protocol. It is meant

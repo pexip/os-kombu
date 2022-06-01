@@ -1,15 +1,16 @@
 """In-memory transport."""
-from __future__ import absolute_import, unicode_literals
 
-from kombu.five import Queue, values
+from queue import Queue
 
 from . import base
 from . import virtual
+from collections import defaultdict
 
 
 class Channel(virtual.Channel):
     """In-memory Channel."""
 
+    events = defaultdict(set)
     queues = {}
     do_restore = False
     supports_fanout = True
@@ -52,8 +53,8 @@ class Channel(virtual.Channel):
         return size
 
     def close(self):
-        super(Channel, self).close()
-        for queue in values(self.queues):
+        super().close()
+        for queue in self.queues.values():
             queue.empty()
         self.queues = {}
 

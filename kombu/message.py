@@ -1,22 +1,19 @@
 """Message class."""
-from __future__ import absolute_import, unicode_literals
 
 import sys
 
 from .compression import decompress
-from .exceptions import MessageStateError
-from .five import python_2_unicode_compatible, reraise, text_t
+from .exceptions import reraise, MessageStateError
 from .serialization import loads
 from .utils.functional import dictfilter
 
-__all__ = ['Message']
+__all__ = ('Message',)
 
 ACK_STATES = {'ACK', 'REJECTED', 'REQUEUED'}
 IS_PYPY = hasattr(sys, 'pypy_version_info')
 
 
-@python_2_unicode_compatible
-class Message(object):
+class Message:
     """Base class for received messages.
 
     Keyword Arguments:
@@ -61,9 +58,10 @@ class Message(object):
         )
 
     def __init__(self, body=None, delivery_tag=None,
-                 content_type=None, content_encoding=None, delivery_info={},
+                 content_type=None, content_encoding=None, delivery_info=None,
                  properties=None, headers=None, postencode=None,
                  accept=None, channel=None, **kwargs):
+        delivery_info = {} if not delivery_info else delivery_info
         self.errors = [] if self.errors is None else self.errors
         self.channel = channel
         self.delivery_tag = delivery_tag
@@ -83,7 +81,7 @@ class Message(object):
             except Exception:
                 self.errors.append(sys.exc_info())
 
-        if not self.errors and postencode and isinstance(body, text_t):
+        if not self.errors and postencode and isinstance(body, str):
             try:
                 body = body.encode(postencode)
             except Exception:
@@ -207,7 +205,7 @@ class Message(object):
         return self._decoded_cache if self._decoded_cache else self.decode()
 
     def __repr__(self):
-        return '<{0} object at {1:#x} with details {2!r}>'.format(
+        return '<{} object at {:#x} with details {!r}>'.format(
             type(self).__name__, id(self), dictfilter(
                 state=self._state,
                 content_type=self.content_type,

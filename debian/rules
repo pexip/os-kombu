@@ -22,8 +22,3 @@ override_dh_python3:
 
 override_dh_compress:
 	dh_compress -X .js -X .html
-
-override_dh_clean:
-	rm -rf docs/.build
-	rm -rf kombu.egg-info/PKG-INFO
-	dh_clean

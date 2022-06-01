@@ -1,13 +1,13 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
+from io import StringIO
+
+import pytest
 
 from contextlib import contextmanager
 
-from case import Mock
+from unittest.mock import Mock
 from vine.abstract import Thenable
 
 from kombu.exceptions import HttpError
-from kombu.five import WhateverIO
 
 from kombu.asynchronous import http
 from kombu.asynchronous.aws.connection import (
@@ -116,7 +116,7 @@ class test_AsyncHTTPSConnection(AWSCase):
         request = x.getresponse(callback)
         x.http_client.add_request.assert_called_with(request)
 
-        buf = WhateverIO()
+        buf = StringIO()
         buf.write('The quick brown fox jumps')
 
         headers = http.Headers({'X-Foo': 'Hello', 'X-Bar': 'World'})
@@ -245,6 +245,27 @@ class test_AsyncAWSQueryConnection(AWSCase):
         parsed = urlparse(request.url)
         params = parse_qs(parsed.query)
         assert 'Action' not in params
+
+    @pytest.mark.parametrize('error_status_code', [
+        AsyncAWSQueryConnection.STATUS_CODE_REQUEST_TIMEOUT,
+        AsyncAWSQueryConnection.STATUS_CODE_NETWORK_CONNECT_TIMEOUT_ERROR,
+        AsyncAWSQueryConnection.STATUS_CODE_INTERNAL_ERROR,
+        AsyncAWSQueryConnection.STATUS_CODE_BAD_GATEWAY,
+        AsyncAWSQueryConnection.STATUS_CODE_SERVICE_UNAVAILABLE_ERROR,
+        AsyncAWSQueryConnection.STATUS_CODE_GATEWAY_TIMEOUT
+    ])
+    def test_on_list_ready_error_response(self, error_status_code):
+        mocked_response_error = self.Response(
+            error_status_code,
+            "error_status_code"
+        )
+        result = self.x._on_list_ready(
+            "parent",
+            "markers",
+            "operation",
+            mocked_response_error
+        )
+        assert result == []
 
     def Response(self, status, body):
         r = Mock(name='response')

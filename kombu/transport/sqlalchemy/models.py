@@ -1,10 +1,9 @@
 """Kombu transport using SQLAlchemy as the message store."""
-from __future__ import absolute_import, unicode_literals
 
 import datetime
 
 from sqlalchemy import (Column, Integer, String, Text, DateTime,
-                        Sequence, Boolean, ForeignKey, SmallInteger)
+                        Sequence, Boolean, ForeignKey, SmallInteger, Index)
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.orm import relation
 from sqlalchemy.schema import MetaData
@@ -14,7 +13,7 @@ metadata = MetaData()
 ModelBase = declarative_base(metadata=metadata, class_registry=class_registry)
 
 
-class Queue(object):
+class Queue:
     """The queue class."""
 
     __table_args__ = {'sqlite_autoincrement': True, 'mysql_engine': 'InnoDB'}
@@ -27,17 +26,20 @@ class Queue(object):
         self.name = name
 
     def __str__(self):
-        return '<Queue({self.name})>'.format(self=self)
+        return f'<Queue({self.name})>'
 
     @declared_attr
     def messages(cls):
         return relation('Message', backref='queue', lazy='noload')
 
 
-class Message(object):
+class Message:
     """The message class."""
 
-    __table_args__ = {'sqlite_autoincrement': True, 'mysql_engine': 'InnoDB'}
+    __table_args__ = (
+        Index('ix_kombu_message_timestamp_id', 'timestamp', 'id'),
+        {'sqlite_autoincrement': True, 'mysql_engine': 'InnoDB'}
+    )
 
     id = Column(Integer, Sequence('message_id_sequence'),
                 primary_key=True, autoincrement=True)

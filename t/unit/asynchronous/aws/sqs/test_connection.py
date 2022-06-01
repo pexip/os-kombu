@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-
-from case import Mock, MagicMock
+from unittest.mock import Mock, MagicMock
 
 from kombu.asynchronous.aws.sqs.connection import (
     AsyncSQSConnection
@@ -86,7 +83,12 @@ class test_AsyncSQSConnection(AWSCase):
 
     def test_receive_message(self):
         queue = Mock(name='queue')
-        self.x.receive_message(queue, 4, callback=self.callback)
+        self.x.receive_message(
+            queue,
+            self.x.get_queue_url('queue'),
+            4,
+            callback=self.callback,
+        )
         self.x.get_list.assert_called_with(
             'ReceiveMessage', {'MaxNumberOfMessages': 4},
             [('Message', AsyncMessage)],
@@ -96,7 +98,13 @@ class test_AsyncSQSConnection(AWSCase):
 
     def test_receive_message__with_visibility_timeout(self):
         queue = Mock(name='queue')
-        self.x.receive_message(queue, 4, 3666, callback=self.callback)
+        self.x.receive_message(
+            queue,
+            self.x.get_queue_url('queue'),
+            4,
+            3666,
+            callback=self.callback,
+        )
         self.x.get_list.assert_called_with(
             'ReceiveMessage', {
                 'MaxNumberOfMessages': 4,
@@ -110,7 +118,11 @@ class test_AsyncSQSConnection(AWSCase):
     def test_receive_message__with_wait_time_seconds(self):
         queue = Mock(name='queue')
         self.x.receive_message(
-            queue, 4, wait_time_seconds=303, callback=self.callback,
+            queue,
+            self.x.get_queue_url('queue'),
+            4,
+            wait_time_seconds=303,
+            callback=self.callback,
         )
         self.x.get_list.assert_called_with(
             'ReceiveMessage', {
@@ -125,7 +137,11 @@ class test_AsyncSQSConnection(AWSCase):
     def test_receive_message__with_attributes(self):
         queue = Mock(name='queue')
         self.x.receive_message(
-            queue, 4, attributes=['foo', 'bar'], callback=self.callback,
+            queue,
+            self.x.get_queue_url('queue'),
+            4,
+            attributes=['foo', 'bar'],
+            callback=self.callback,
         )
         self.x.get_list.assert_called_with(
             'ReceiveMessage', {

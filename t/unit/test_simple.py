@@ -1,8 +1,6 @@
-from __future__ import absolute_import, unicode_literals
-
 import pytest
 
-from case import Mock
+from unittest.mock import Mock
 
 from kombu import Connection, Exchange, Queue
 
@@ -14,7 +12,7 @@ class SimpleBase:
         if not isinstance(q, Queue):
             q = self.__class__.__name__
             if name:
-                q = '%s.%s' % (q, name)
+                q = f'{q}.{name}'
         return self._Queue(q, *args, **kwargs)
 
     def _Queue(self, *args, **kwargs):
@@ -84,8 +82,8 @@ class SimpleBase:
 
     def test_custom_Queue(self):
         n = self.__class__.__name__
-        exchange = Exchange('%s-test.custom.Queue' % (n,))
-        queue = Queue('%s-test.custom.Queue' % (n,),
+        exchange = Exchange(f'{n}-test.custom.Queue')
+        queue = Queue(f'{n}-test.custom.Queue',
                       exchange,
                       'my.routing.key')
 
@@ -107,6 +105,33 @@ class test_SimpleQueue(SimpleBase):
         q = self.Queue('test_is_no_ack')
         assert not q.no_ack
 
+    def test_queue_args(self):
+        q = self.Queue('test_queue_args', queue_args={'x-queue-mode': 'lazy'})
+        assert len(q.queue.queue_arguments) == 1
+        assert q.queue.queue_arguments['x-queue-mode'] == 'lazy'
+
+        q = self.Queue('test_queue_args')
+        assert q.queue.queue_arguments == {}
+
+    def test_exchange_opts(self):
+        q = self.Queue('test_exchange_opts_a',
+                       exchange_opts={'durable': True, 'type': 'fanout',
+                                      'delivery_mode': 'persistent'})
+        assert q.queue.exchange.type == 'fanout'
+        assert q.queue.exchange.durable
+        assert not q.queue.exchange.auto_delete
+        delivery_mode_code = q.queue.exchange.PERSISTENT_DELIVERY_MODE
+        assert q.queue.exchange.delivery_mode == delivery_mode_code
+
+        q = self.Queue('test_exchange_opts_b')
+        assert q.queue.exchange.type == 'direct'
+        assert q.queue.exchange.durable
+        assert not q.queue.exchange.auto_delete
+
+    def test_queue_opts(self):
+        q = self.Queue('test_queue_opts', queue_opts={'auto_delete': False})
+        assert not q.queue.auto_delete
+
 
 class test_SimpleBuffer(SimpleBase):
 
@@ -116,3 +141,32 @@ class test_SimpleBuffer(SimpleBase):
     def test_is_no_ack(self):
         q = self.Queue('test_is_no_ack')
         assert q.no_ack
+
+    def test_queue_args(self):
+        q = self.Queue('test_queue_args', queue_args={'x-queue-mode': 'lazy'})
+        assert len(q.queue.queue_arguments) == 1
+        assert q.queue.queue_arguments['x-queue-mode'] == 'lazy'
+
+    def test_exchange_opts(self):
+        q = self.Queue('test_exchange_opts_a',
+                       exchange_opts={'durable': True, 'auto_delete': True,
+                                      'delivery_mode': 'persistent'})
+        assert q.queue.exchange.type == 'direct'
+        assert q.queue.exchange.durable
+        assert q.queue.exchange.auto_delete
+        delivery_mode_code = q.queue.exchange.PERSISTENT_DELIVERY_MODE
+        assert q.queue.exchange.delivery_mode == delivery_mode_code
+
+        q = self.Queue('test_exchange_opts_b')
+        assert q.queue.exchange.type == 'direct'
+        assert not q.queue.exchange.durable
+        assert q.queue.exchange.auto_delete
+
+    def test_queue_opts(self):
+        q = self.Queue('test_queue_opts', queue_opts={'auto_delete': False})
+        assert not q.queue.durable
+        assert not q.queue.auto_delete
+
+        q = self.Queue('test_queue_opts')
+        assert not q.queue.durable
+        assert q.queue.auto_delete

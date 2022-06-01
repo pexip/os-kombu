@@ -1,17 +1,16 @@
-# -*- coding: utf-8 -*-
 """Text Utilities."""
-from __future__ import absolute_import, unicode_literals
+# flake8: noqa
+
 
 from difflib import SequenceMatcher
 
 from kombu import version_info_t
-from kombu.five import string_t
 
 
 def escape_regex(p, white=''):
     # type: (str, str) -> str
     """Escape string for use within a regular expression."""
-    # what's up with re.escape? that code must be neglected or someting
+    # what's up with re.escape? that code must be neglected or something
     return ''.join(c if c.isalnum() or c in white
                    else ('\\000' if c == '\000' else '\\' + c)
                    for c in p)
@@ -42,11 +41,11 @@ def fmatch_best(needle, haystack, min_ratio=0.6):
 
 
 def version_string_as_tuple(s):
-    # type (str) -> version_info_t
+    # type: (str) -> version_info_t
     """Convert version string to version info tuple."""
     v = _unpack_version(*s.split('.'))
     # X.Y.3a1 -> (X, Y, 3, 'a1')
-    if isinstance(v.micro, string_t):
+    if isinstance(v.micro, str):
         v = version_info_t(v.major, v.minor, *_splitmicro(*v[2:]))
     # X.Y.3a1-40 -> (X, Y, 3, 'a1', '40')
     if not v.serial and v.releaselevel and '-' in v.releaselevel:

@@ -1,4 +1,6 @@
 kombu.egg-info/
+docs/.build/
 .pytest_cache/README.md
+.pytest_cache/CACHEDIR.TAG
 .pytest_cache/v/cache/nodeids
 .pytest_cache/v/cache/stepwise

@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 """Timer scheduling Python callbacks."""
-from __future__ import absolute_import, unicode_literals
 
 import heapq
 import sys
@@ -9,10 +7,10 @@ from collections import namedtuple
 from datetime import datetime
 from functools import total_ordering
 from weakref import proxy as weakrefproxy
+from time import monotonic
 
 from vine.utils import wraps
 
-from kombu.five import monotonic, python_2_unicode_compatible
 from kombu.log import get_logger
 from time import time as _time
 
@@ -21,7 +19,7 @@ try:
 except ImportError:  # pragma: no cover
     utc = None
 
-__all__ = ['Entry', 'Timer', 'to_timestamp']
+__all__ = ('Entry', 'Timer', 'to_timestamp')
 
 logger = get_logger(__name__)
 
@@ -46,8 +44,7 @@ def to_timestamp(d, default_timezone=utc, time=monotonic):
 
 
 @total_ordering
-@python_2_unicode_compatible
-class Entry(object):
+class Entry:
     """Schedule Entry."""
 
     if not IS_PYPY:  # pragma: no cover
@@ -74,7 +71,7 @@ class Entry(object):
             pass
 
     def __repr__(self):
-        return '<TimerEntry: {0}(*{1!r}, **{2!r})'.format(
+        return '<TimerEntry: {}(*{!r}, **{!r})'.format(
             self.fun.__name__, self.args, self.kwargs)
 
     # must not use hash() to order entries
@@ -90,7 +87,7 @@ class Entry(object):
         self.canceled = value
 
 
-class Timer(object):
+class Timer:
     """Async timer implementation."""
 
     Entry = Entry
@@ -108,13 +105,16 @@ class Timer(object):
     def __exit__(self, *exc_info):
         self.stop()
 
-    def call_at(self, eta, fun, args=(), kwargs={}, priority=0):
+    def call_at(self, eta, fun, args=(), kwargs=None, priority=0):
+        kwargs = {} if not kwargs else kwargs
         return self.enter_at(self.Entry(fun, args, kwargs), eta, priority)
 
-    def call_after(self, secs, fun, args=(), kwargs={}, priority=0):
+    def call_after(self, secs, fun, args=(), kwargs=None, priority=0):
+        kwargs = {} if not kwargs else kwargs
         return self.enter_after(secs, self.Entry(fun, args, kwargs), priority)
 
-    def call_repeatedly(self, secs, fun, args=(), kwargs={}, priority=0):
+    def call_repeatedly(self, secs, fun, args=(), kwargs=None, priority=0):
+        kwargs = {} if not kwargs else kwargs
         tref = self.Entry(fun, args, kwargs)
 
         @wraps(fun)
