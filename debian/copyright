@@ -23,7 +23,7 @@ License: BSD-3-clause
 
 
 Files: debian/*
-Copyright: 2012-2015, Michael Fladischer <fladi@debian.org>
+Copyright: 2012-2022, Michael Fladischer <fladi@debian.org>
  2017 Christopher Hoskin <mans0954@debian.org>
 License: BSD-3-clause
 
