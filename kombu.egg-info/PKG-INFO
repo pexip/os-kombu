@@ -1,12 +1,11 @@
 Metadata-Version: 2.1
 Name: kombu
-Version: 5.0.2
+Version: 5.2.4
 Summary: Messaging library for Python.
 Home-page: https://kombu.readthedocs.io
 Author: Ask Solem
 Author-email: auvipy@gmail.com, ask@celeryproject.org
 License: BSD
-Description: UNKNOWN
 Keywords: messaging message amqp rabbitmq redis actor producer consumer
 Platform: any
 Classifier: Development Status :: 5 - Production/Stable
@@ -15,9 +14,10 @@ Classifier: Operating System :: OS Independent
 Classifier: Programming Language :: Python
 Classifier: Programming Language :: Python :: 3 :: Only
 Classifier: Programming Language :: Python :: 3
-Classifier: Programming Language :: Python :: 3.6
 Classifier: Programming Language :: Python :: 3.7
 Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
 Classifier: Programming Language :: Python :: Implementation :: CPython
 Classifier: Programming Language :: Python :: Implementation :: PyPy
 Classifier: Intended Audience :: Developers
@@ -25,7 +25,7 @@ Classifier: Topic :: Communications
 Classifier: Topic :: System :: Distributed Computing
 Classifier: Topic :: System :: Networking
 Classifier: Topic :: Software Development :: Libraries :: Python Modules
-Requires-Python: >=3.6
+Requires-Python: >=3.7
 Provides-Extra: msgpack
 Provides-Extra: yaml
 Provides-Extra: redis
@@ -40,3 +40,7 @@ Provides-Extra: azurestoragequeues
 Provides-Extra: azureservicebus
 Provides-Extra: qpid
 Provides-Extra: consul
+License-File: LICENSE
+
+UNKNOWN
+
