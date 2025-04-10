@@ -5,5 +5,7 @@ set -e
 cp -r t setup.cfg ${AUTOPKGTEST_TMP}
 cd ${AUTOPKGTEST_TMP}
 for p in $(py3versions -s); do
-    $p -m pytest
+    $p -m pytest \
+        --ignore t/unit/transport/test_gcpubsub.py \
+        -k 'not test_getting_master_from_sentinel and not test_getting_master_from_sentinel_single_node'
 done

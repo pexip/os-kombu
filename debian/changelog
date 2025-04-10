@@ -1,3 +1,134 @@
+kombu (5.5.2-1) unstable; urgency=medium
+
+  * Team upload.
+  * New upstream release.  Note that the dependencies needed to use Google
+    Cloud Pub/Sub as a transport broker are not currently packaged in
+    Debian.
+
+ -- Colin Watson <cjwatson@debian.org>  Thu, 10 Apr 2025 16:14:43 +0100
+
+kombu (5.4.2-3) unstable; urgency=medium
+
+  * Team upload
+  * Trim autopkgtest deps, avoid "@builddeps@"
+  * Lintian has been fixed, remove overide for false match
+
+ -- Alexandre Detiste <tchet@debian.org>  Mon, 17 Feb 2025 07:45:48 +0100
+
+kombu (5.4.2-2) unstable; urgency=medium
+
+  * Team upload
+  * Replace pyro4 with pyro5
+
+ -- Bastian Germann <bage@debian.org>  Mon, 02 Dec 2024 16:14:49 +0100
+
+kombu (5.4.2-1) unstable; urgency=low
+
+  * New upstream version 5.4.2
+  * Bump Standards-Version to 4.7.0.
+  * Use dh-sequence-python3.
+  * Add linitan overrides for false-positive stdlib deprecation.
+
+ -- Michael Fladischer <fladi@debian.org>  Tue, 24 Sep 2024 11:51:06 +0000
+
+kombu (5.4.0-1) unstable; urgency=medium
+
+  * Team upload.
+  * Remove dependency on python3-simplejson
+  * New upstream version 5.4.0
+
+ -- Alexandre Detiste <tchet@debian.org>  Sat, 31 Aug 2024 00:30:47 +0200
+
+kombu (5.3.7-2) unstable; urgency=medium
+
+  * Team upload.
+  * Remove dependency on python3-case
+
+ -- Alexandre Detiste <tchet@debian.org>  Wed, 15 May 2024 00:01:19 +0200
+
+kombu (5.3.7-1) unstable; urgency=low
+
+  * New upstream version 5.3.7
+
+ -- Michael Fladischer <fladi@debian.org>  Sun, 21 Apr 2024 22:11:10 +0000
+
+kombu (5.3.6-1) unstable; urgency=low
+
+  * New upstream version 5.3.6
+  * Drop patch for pytest-v8 compatibility, fixed in upstream.
+
+ -- Michael Fladischer <fladi@debian.org>  Sun, 31 Mar 2024 18:27:38 +0000
+
+kombu (5.3.5-2) unstable; urgency=medium
+
+  * Team upload.
+  * Remove (build-)dependency on python3-anyjson; kombu no longer uses it as
+    of 4.0.
+  * Cherry-pick upstream patch to fix test failures with pytest v8.
+
+ -- Colin Watson <cjwatson@debian.org>  Tue, 27 Feb 2024 11:12:18 +0000
+
+kombu (5.3.5-1) unstable; urgency=low
+
+  [ Alexandre Detiste ]
+  * remove extraneous build dep python3-mock
+
+  [ Michael Fladischer ]
+  * New upstream version 5.3.5
+  * Update year in d/copyright.
+
+ -- Michael Fladischer <fladi@debian.org>  Sun, 21 Jan 2024 16:03:46 +0000
+
+kombu (5.3.4-1) unstable; urgency=low
+
+  * New upstream version 5.3.4
+
+ -- Michael Fladischer <fladi@debian.org>  Wed, 29 Nov 2023 15:52:36 +0000
+
+kombu (5.3.2-2) unstable; urgency=medium
+
+  * Add patch to satisfy assinine sphinx 7.x parsing logic for copyright year
+    substitution (Closes: #1042706).
+
+ -- Michael Fladischer <fladi@debian.org>  Tue, 31 Oct 2023 09:20:05 +0000
+
+kombu (5.3.2-1) unstable; urgency=medium
+
+  * New upstream version 5.3.2
+  * Use github.com in d/watch.
+  * Clean up artifacts right after running tests.
+  * Simplify d/rules by using execute_ targets instead of overrides.
+  * Update year in d/copyright.
+
+ -- Michael Fladischer <fladi@debian.org>  Sun, 03 Sep 2023 21:34:32 +0000
+
+kombu (5.3.1-2) unstable; urgency=medium
+
+  * Remove /usr/lib/python3/dist-packages/control (Closes: #1037554).
+
+ -- Thomas Goirand <zigo@debian.org>  Wed, 05 Jul 2023 09:02:40 +0200
+
+kombu (5.3.1-1) unstable; urgency=medium
+
+  * New upstream version 5.3.1
+
+ -- Michael Fladischer <fladi@debian.org>  Thu, 22 Jun 2023 07:41:42 +0000
+
+kombu (5.3.0-1) unstable; urgency=medium
+
+  * New upstream version 5.3.0
+  * Add python3-hypothesis to Build-Depends, required by tests.
+  * Bump Standards-Version to 4.6.2.
+  * Clean up .pytest_cache directory after build-time tests.
+  * Skip redis sentinel tests.
+  * Remove override for dh_python3.
+  * Refresh patches and drop upstreamed ones.
+  * Skip redis sentinel tests in autopkgtests.
+  * Add linitan overrides for PKCS7 bundle used in PayPal donation
+    button.
+
+ -- Michael Fladischer <fladi@debian.org>  Tue, 13 Jun 2023 13:08:32 +0000
+
 kombu (5.2.4-1) unstable; urgency=low
 
   [ Debian Janitor ]

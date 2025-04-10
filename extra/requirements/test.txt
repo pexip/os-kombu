@@ -1,4 +1,0 @@
-pytz>dev
-pytest~=7.0.1
-pytest-sugar
-Pyro4

@@ -10,33 +10,28 @@ Uploaders:
  Sergio Durigan Junior <sergiodj@debian.org>,
 Build-Depends:
  debhelper-compat (= 13),
- dh-python,
+ dh-sequence-python3,
  python3-all,
  python3-setuptools,
  python3-sphinx,
 Build-Depends-Indep:
  python3-amqp (>= 5.0.0) <!nocheck>,
- python3-anyjson <!nocheck>,
  python3-azure <!nocheck>,
  python3-botocore <!nocheck>,
- python3-case <!nocheck>,
  python3-django <!nocheck>,
- python3-mock <!nocheck>,
+ python3-hypothesis <!nocheck>,
  python3-msgpack <!nocheck>,
  python3-pymongo <!nocheck>,
- python3-pyro4 <!nocheck>,
+ python3-pyro5 <!nocheck>,
  python3-pytest <!nocheck>,
  python3-redis (>= 3.3.11) <!nocheck>,
- python3-simplejson <!nocheck>,
  python3-sphinx-celery <!nodoc>,
  python3-sqlalchemy <!nocheck>,
  python3-tz <!nocheck>,
+ python3-urllib3 <!nocheck>,
  python3-vine <!nocheck>,
  python3-yaml <!nocheck>,
-Build-Conflicts:
- python-cjson,
- python-sphinx,
-Standards-Version: 4.6.0.1
+Standards-Version: 4.7.0
 Homepage: https://github.com/celery/kombu/
 Vcs-Git: https://salsa.debian.org/python-team/packages/kombu.git
 Vcs-Browser: https://salsa.debian.org/python-team/packages/kombu
@@ -69,7 +64,6 @@ Package: python3-kombu
 Architecture: all
 Depends:
  python3-amqp (>= 5.0.0),
- python3-anyjson,
  python3-vine,
  ${misc:Depends},
  ${python3:Depends},
@@ -77,7 +71,7 @@ Recommends:
  python3-yaml,
 Suggests:
  python-kombu-doc,
- python3-boto,
+ python3-boto3,
  python3-django,
  python3-pymongo,
  python3-redis,
@@ -96,5 +90,3 @@ Description: AMQP Messaging Framework for Python (Python3 version)
     payloads.
   * The ability to ensure that an operation is performed by gracefully handling
     connection and channel errors.
- .
- This package contains the Python 3 version of the library.

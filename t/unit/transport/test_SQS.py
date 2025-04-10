@@ -4,6 +4,8 @@ NOTE: The SQSQueueMock and SQSConnectionMock classes originally come from
 http://github.com/pcsforeducation/sqs-mock-python. They have been patched
 slightly.
 """
+from __future__ import annotations
+
 import base64
 import os
 import random
@@ -105,13 +107,15 @@ class SQSClientMock:
     def get_queue_url(self, QueueName=None):
         return self._queues[QueueName]
 
-    def send_message(self, QueueUrl=None, MessageBody=None):
+    def send_message(self, QueueUrl=None, MessageBody=None,
+                     MessageAttributes=None):
         for q in self._queues.values():
             if q.url == QueueUrl:
                 handle = ''.join(random.choice(string.ascii_lowercase) for
                                  x in range(10))
                 q.messages.append({'Body': MessageBody,
-                                   'ReceiptHandle': handle})
+                                   'ReceiptHandle': handle,
+                                   'MessageAttributes': MessageAttributes})
                 break
 
     def receive_message(self, QueueUrl=None, MaxNumberOfMessages=1,
@@ -133,13 +137,23 @@ class SQSClientMock:
             if q.url == QueueUrl:
                 q.messages = []
 
+    def delete_queue(self, QueueUrl=None):
+        queue_name = None
+        for key, val in self._queues.items():
+            if val.url == QueueUrl:
+                queue_name = key
+                break
+        if queue_name is None:
+            raise Exception(f"Queue url {QueueUrl} not found")
+        del self._queues[queue_name]
+
 
 class test_Channel:
 
     def handleMessageCallback(self, message):
         self.callback_message = message
 
-    def setup(self):
+    def setup_method(self):
         """Mock the back-end SQS classes"""
         # Sanity check... if SQS is None, then it did not import and we
         # cannot execute our tests.
@@ -193,7 +207,7 @@ class test_Channel:
                                    callback=self.handleMessageCallback,
                                    consumer_tag='unittest')
 
-    def teardown(self):
+    def teardown_method(self):
         # Removes QoS reserved messages so we don't restore msgs on shutdown.
         try:
             qos = self.channel._qos
@@ -258,6 +272,11 @@ class test_Channel:
             'foo-bar-baz_qux_quux'
         assert self.channel.entity_name('abcdef.fifo') == 'abcdef.fifo'
 
+    def test_resolve_queue_url(self):
+        queue_name = 'unittest_queue'
+        assert self.sqs_conn_mock._queues[queue_name].url == \
+            self.channel._resolve_queue_url(queue_name)
+
     def test_new_queue(self):
         queue_name = 'new_unittest_queue'
         self.channel._new_queue(queue_name)
@@ -312,6 +331,7 @@ class test_Channel:
         self.channel._new_queue(queue_name)
         self.channel._delete(queue_name)
         assert queue_name not in self.channel._queue_cache
+        assert queue_name not in self.sqs_conn_mock._queues
 
     def test_get_from_sqs(self):
         # Test getting a single message
@@ -338,7 +358,7 @@ class test_Channel:
 
     def test_optional_b64_decode(self):
         raw = b'{"id": "4cc7438e-afd4-4f8f-a2f3-f46567e7ca77","task": "celery.task.PingTask",' \
-              b'"args": [],"kwargs": {},"retries": 0,"eta": "2009-11-17T12:30:56.527191"}'     # noqa
+              b'"args": [],"kwargs": {},"retries": 0,"eta": "2009-11-17T12:30:56.527191"}'
         b64_enc = base64.b64encode(raw)
         assert self.channel._optional_b64_decode(b64_enc) == raw
         assert self.channel._optional_b64_decode(raw) == raw
@@ -440,6 +460,46 @@ class test_Channel:
         self.channel.connection._deliver.reset_mock()
         self.channel._get_bulk(self.queue_name)
         self.channel.connection._deliver.assert_called_once()
+
+    # hub required for successful instantiation of AsyncSQSConnection
+    @pytest.mark.usefixtures('hub')
+    def test_get_async(self):
+        """Basic coverage of async code typically used via:
+        basic_consume > _loop1 > _schedule_queue > _get_bulk_async"""
+        # Prepare
+        for i in range(3):
+            message = 'message: %s' % i
+            self.producer.publish(message)
+
+        # SQS.Channel.asynsqs constructs AsyncSQSConnection using self.sqs
+        # which is already a mock thanks to `setup` above, we just need to
+        # mock the async-specific methods (as test_AsyncSQSConnection does)
+        async_sqs_conn = self.channel.asynsqs(self.queue_name)
+        async_sqs_conn.get_list = Mock(name='X.get_list')
+
+        # Call key method
+        self.channel._get_bulk_async(self.queue_name)
+
+        assert async_sqs_conn.get_list.call_count == 1
+        get_list_args = async_sqs_conn.get_list.call_args[0]
+        get_list_kwargs = async_sqs_conn.get_list.call_args[1]
+        assert get_list_args[0] == 'ReceiveMessage'
+        assert get_list_args[1] == {
+            'MaxNumberOfMessages': SQS.SQS_MAX_MESSAGES,
+            'WaitTimeSeconds': self.channel.wait_time_seconds,
+        }
+        assert get_list_args[3] == \
+            self.channel.sqs().get_queue_url(self.queue_name).url
+        assert get_list_kwargs['parent'] == self.queue_name
+        assert get_list_kwargs['protocol_params'] == {
+            'json': {'AttributeNames': ['ApproximateReceiveCount']},
+            'query': {'AttributeName.1': 'ApproximateReceiveCount'},
+        }
+
+    def test_fetch_message_attributes(self):
+        self.connection.transport_options['fetch_message_attributes'] = ["Attribute1", "Attribute2"]
+        async_sqs_conn = self.channel.asynsqs(self.queue_name)
+        assert async_sqs_conn.fetch_message_attributes == ['Attribute1', 'Attribute2']
 
     def test_drain_events_with_empty_list(self):
         def mock_can_consume():
@@ -613,6 +673,46 @@ class test_Channel:
         basic_reject_mock.assert_called_with(2)
         assert not basic_ack_mock.called
 
+    @patch('kombu.transport.virtual.base.Channel.basic_ack')
+    @patch('kombu.transport.virtual.base.Channel.basic_reject')
+    def test_basic_ack_access_denied(self, basic_reject_mock, basic_ack_mock):
+        """Test that basic_ack raises AccessDeniedQueueException when
+           access is denied"""
+        message = {
+            'sqs_message': {
+                'ReceiptHandle': '2'
+            },
+            'sqs_queue': 'testing_queue'
+        }
+        error_response = {
+            'Error': {
+                'Code': 'AccessDenied',
+                'Message': """An error occurred (AccessDenied) when calling the
+                              DeleteMessage operation."""
+            }
+        }
+        operation_name = 'DeleteMessage'
+
+        mock_messages = Mock()
+        mock_messages.delivery_info = message
+        self.channel.qos.append(mock_messages, 2)
+        self.channel.sqs().delete_message = Mock()
+        self.channel.sqs().delete_message.side_effect = ClientError(
+            error_response=error_response,
+            operation_name=operation_name
+        )
+
+        # Expecting the custom AccessDeniedQueueException to be raised
+        with pytest.raises(SQS.AccessDeniedQueueException):
+            self.channel.basic_ack(2)
+
+        self.sqs_conn_mock.delete_message.assert_called_with(
+            QueueUrl=message['sqs_queue'],
+            ReceiptHandle=message['sqs_message']['ReceiptHandle']
+        )
+        assert not basic_reject_mock.called
+        assert not basic_ack_mock.called
+
     def test_reject_when_no_predefined_queues(self):
         connection = Connection(transport=SQS.Transport, transport_options={})
         channel = connection.channel()
@@ -768,6 +868,30 @@ class test_Channel:
         assert 'MessageDeduplicationId' in \
             sqs_queue_mock.send_message.call_args[1]
 
+    def test_predefined_queues_put_to_queue(self):
+        connection = Connection(transport=SQS.Transport, transport_options={
+            'predefined_queues': example_predefined_queues,
+        })
+        channel = connection.channel()
+
+        queue_name = 'queue-2'
+
+        exchange = Exchange('test_SQS', type='direct')
+        p = messaging.Producer(channel, exchange, routing_key=queue_name)
+
+        queue = Queue(queue_name, exchange, queue_name)
+        queue(channel).declare()
+
+        channel.sqs = Mock()
+        sqs_queue_mock = Mock()
+        channel.sqs.return_value = sqs_queue_mock
+        p.publish('message', DelaySeconds=10)
+
+        sqs_queue_mock.send_message.assert_called_once()
+
+        assert 'DelaySeconds' in sqs_queue_mock.send_message.call_args[1]
+        assert sqs_queue_mock.send_message.call_args[1]['DelaySeconds'] == 10
+
     @pytest.mark.parametrize('predefined_queues', (
         {
             'invalid-fifo-queue-name': {
@@ -879,3 +1003,43 @@ class test_Channel:
 
         # Assert
         mock_generate_sts_session_token.assert_not_called()
+
+    def test_sts_session_with_multiple_predefined_queues(self):
+        connection = Connection(transport=SQS.Transport, transport_options={
+            'predefined_queues': example_predefined_queues,
+            'sts_role_arn': 'test::arn'
+        })
+        channel = connection.channel()
+        sqs = SQS_Channel_sqs.__get__(channel, SQS.Channel)
+
+        mock_generate_sts_session_token = Mock()
+        mock_new_sqs_client = Mock()
+        channel.new_sqs_client = mock_new_sqs_client
+        mock_generate_sts_session_token.return_value = {
+            'Expiration': datetime.utcnow() + timedelta(days=1),
+            'SessionToken': 123,
+            'AccessKeyId': 123,
+            'SecretAccessKey': 123
+        }
+
+        channel.generate_sts_session_token = mock_generate_sts_session_token
+
+        # Act
+        sqs(queue='queue-1')
+        sqs(queue='queue-2')
+
+        # Assert
+        mock_generate_sts_session_token.assert_called()
+        mock_new_sqs_client.assert_called()
+
+    def test_message_attribute(self):
+        message = 'my test message'
+        self.producer.publish(message, message_attributes={
+            'Attribute1': {'DataType': 'String',
+                           'StringValue': 'STRING_VALUE'}
+        }
+        )
+        output_message = self.queue(self.channel).get()
+        assert message == output_message.payload
+        # It's not propagated to the properties
+        assert 'message_attributes' not in output_message.properties
