@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import pytest
 
 import t.skip
 
 pytest.importorskip('boto3')
-pytest.importorskip('pycurl')
+pytest.importorskip('urllib3')
 
 
 @t.skip.if_pypy

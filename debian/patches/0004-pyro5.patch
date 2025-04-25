@@ -1,0 +1,26 @@
+Origin: https://github.com/celery/kombu/issues/1653
+---
+--- a/kombu/transport/pyro.py	2021-09-07 06:22:35.000000000 +0200
++++ b/kombu/transport/pyro.py	2023-04-03 17:34:31.778817192 +0200
+@@ -2,7 +2,7 @@
+ 
+ Pyro transport, and Kombu Broker daemon.
+ 
+-Requires the :mod:`Pyro4` library to be installed.
++Requires the :mod:`Pyro5` library to be installed.
+ 
+ Features
+ ========
+@@ -44,9 +44,9 @@ from kombu.utils.objects import cached_property
+ from . import virtual
+ 
+ try:
+-    import Pyro4 as pyro
+-    from Pyro4.errors import NamingError
+-    from Pyro4.util import SerializerBase
++    import Pyro5.api as pyro
++    from Pyro5.errors import NamingError
++    from Pyro5.serializers import SerializerBase
+ except ImportError:          # pragma: no cover
+     pyro = NamingError = SerializerBase = None
+ 

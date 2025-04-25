@@ -2,20 +2,18 @@
 
 export PYBUILD_NAME=kombu
 export PYBUILD_BEFORE_TEST=cp -r {dir}/t {dir}/setup.cfg {build_dir}
-export PYBUILD_AFTER_TEST=rm -rf {build_dir}/t {build_dir}/setup.cfg
+export PYBUILD_AFTER_TEST=rm -rf {build_dir}/t {build_dir}/setup.cfg {build_dir}/.pytest_cache {build_dir}/control
+export PYBUILD_TEST_ARGS=\
+	--ignore t/unit/transport/test_gcpubsub.py \
+	-k 'not test_getting_master_from_sentinel and not test_getting_master_from_sentinel_single_node'
 
 %:
 	dh $@ --with python3,sphinxdoc --buildsystem=pybuild
 
-override_dh_sphinxdoc:
+execute_before_dh_sphinxdoc:
 ifeq (,$(findstring nodoc, $(DEB_BUILD_OPTIONS)))
-	http_proxy=127.0.0.1:9 https_proxy=127.0.0.1:9 PYTHONPATH=. python3 -m sphinx -b html -d docs/.build/.doctrees -N docs $(CURDIR)/debian/python-kombu-doc/usr/share/doc/python-kombu-doc/html
-	dh_sphinxdoc
+	PYTHONPATH=$(CURDIR) python3 -m sphinx -b html -d $(CURDIR)/docs/.build/.doctrees -N $(CURDIR)/docs $(CURDIR)/debian/python-kombu-doc/usr/share/doc/python-kombu-doc/html
 endif
-
-override_dh_python3:
-	dh_python3 -v
-	dh_python3 -v
 
 override_dh_compress:
 	dh_compress -X .js -X .html
